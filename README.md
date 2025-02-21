@@ -1,6 +1,22 @@
-# Welcome to your Expo app 👋
+# React Native Mobile App - Student Marketplace 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a comprehensive React Native marketplace application built with [Expo](https://expo.dev). The app is designed to facilitate buying and selling items, managing listings, and interacting with other users. It leverages modern technologies and libraries to provide a seamless and efficient development experience.
+
+<div align="center">
+  <img src="assets/screenshots/mockup_3-screens.png" alt="marketplace-main" width="100%"/>
+</div>
+
+## Features
+
+- **User Authentication**: Secure user authentication using Clerk.
+- **Database Integration**: Serveless PostgreSQl database.
+- **Token Storage**: Secure token storage with Expo Secure Store.
+- **Custom Components**: Reusable custom components for buttons, input fields, and more.
+- **Styling**: Tailwind CSS for consistent and responsive styling.
+- **File-Based Routing**: Simplified navigation with Expo Router.
+- **Icon Integration**: Rich iconography with Lucide icons.
+
+
 
 ## Get started
 

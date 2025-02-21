@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.page-heading {
+    @apply text-xl font-PoppinsMedium text-neutral-900 mb-4;
+}
+.bottom-sheet-heading {
+    @apply text-lg font-PoppinsMedium text-neutral-900;
+}
+.title {
+    @apply text-base font-PoppinsMedium text-neutral-900;
+}
+.text-dark {
+    @apply text-base font-PoppinsRegular text-neutral-800;
+}
+.text-light {
+    @apply text-base font-PoppinsRegular text-neutral-500;
+}
+.info {
+    @apply text-sm font-PoppinsRegular text-neutral-500;
+}
+
+.label {
+    @apply text-base font-PoppinsMedium text-neutral-900;
+}
+.sub-label {
+    @apply text-base font-PoppinsRegular text-neutral-500;
+}
