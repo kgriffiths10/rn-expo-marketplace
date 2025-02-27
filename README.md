@@ -2,21 +2,49 @@
 
 This is a comprehensive React Native marketplace application built with [Expo](https://expo.dev). The app is designed to facilitate buying and selling items, managing listings, and interacting with other users. It leverages modern technologies and libraries to provide a seamless and efficient development experience.
 
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=ts,supabase,react,tailwind,nodejs" />
+  </a>
+</p>
+
+
 <div align="center">
-  <img src="assets/screenshots/mockup_3-screens.png" alt="marketplace-main" width="100%"/>
+  <img src="assets/screenshots/mockup_2.png" alt="three-screen-mockup" width="100%"/>
 </div>
 
-## Features
+## Key Features
 
 - **User Authentication**: Secure user authentication using Clerk.
-- **Database Integration**: Serveless PostgreSQl database.
+- **Database Integration**: Subabase postgres database and PostGIS integration for location based listings.
 - **Token Storage**: Secure token storage with Expo Secure Store.
 - **Custom Components**: Reusable custom components for buttons, input fields, and more.
 - **Styling**: Tailwind CSS for consistent and responsive styling.
 - **File-Based Routing**: Simplified navigation with Expo Router.
-- **Icon Integration**: Rich iconography with Lucide icons.
+- **Icon Integration**: Rich iconography with Lucide icons and nativewind styling.
+
+## Tech Stack
+- **React Native & Expo SDK**
+- **Supabase**
+- **Tailwind CSS**
+- **Clerk**
 
 
+
+
+<div align="center">
+  <img src="assets/screenshots/mockup_1.png" alt="multi-screen-mockup" width="100%"/>
+</div>
+
+## ⭐ Support & Contributions  
+
+If you find this project useful, consider giving it a **⭐ star** on GitHub! It helps others discover the project and keeps me motivated to improve it.  
+
+## .env Requirements
+- EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=
+- EXPO_PUBLIC_SERVER_URL=""
+- EXPO_PUBLIC_SUPABASE_URL=
+- EXPO_PUBLIC_SUPABASE_ANON_KEY=
 
 ## Get started
 

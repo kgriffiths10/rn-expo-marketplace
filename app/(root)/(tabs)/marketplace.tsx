@@ -7,7 +7,28 @@ import SelectField from "@/components/form/SelectField";
 import { useState } from "react";
 import { Heart, MapPin, PinIcon } from "lucide-react-native";
 import CustomButton from "@/components/CustomButton";
+import { ImageBackground } from "react-native";
+import { BlurView } from "expo-blur";
 
+
+const mockData = [
+    {
+        title: 'Macbook Pro 2020',
+        price: '$1267.00',
+        location: 'Seattle, Washington',
+        category: 'Electronics',
+        seller: 'Mackenzie Reid',
+        image: require("@/assets/images/howard-bouchevereau-S2r2Ex8jv2o-unsplash.jpg")
+    },
+    {
+        title: 'Apple Watch Series 6',
+        price: '$399.00',
+        location: 'Seattle, Washington',
+        category: 'Electronics',
+        seller: 'Mackenzie Reid',
+        image: require("@/assets/images/klim-musalimov-nmhZgiSU8_0-unsplash.jpg")
+    }
+]
 
 const Marketplace = () => {
     const { user } = useUser();
@@ -59,42 +80,42 @@ const Marketplace = () => {
                 />
 
                 <ScrollView>
-                    {/* Listing Card */}
-                    <View className=" bg-neutral-200 p-4 rounded-xl flex flex-col justify-between">
-                        {/* Feature Tag & Save Button */}
-                        <View className="flex flex-row justify-between items-center">
-                            <Text className="bg-neutral-50 py-2 px-4 rounded-lg">Featured</Text>
-                            <View className="h-12 w-12 bg-neutral-50 items-center justify-center rounded-full">
-                                <Heart size={22} className="stroke-neutral-800"/>
-                            </View> 
-                        </View>
-                        {/* Details */}
-                        <View className="p-4 bg-neutral-50 rounded-lg">
-                            <View className="flex-row justify-between">
-                                <Text className="title">Macbook 2020</Text>
-                                <Text className="title">$1267.00</Text>
+                    {mockData.map((item, index) => (
+                        <ImageBackground 
+                        key={index}
+                        source={item.image} 
+                        className="h-80 w-full rounded-xl overflow-hidden mb-4 p-4 relative"
+                        >
+                            {/* Feature Tag & Save Button */}
+                            <View className="flex flex-row items-center w-full justify-between">
+
+
+                                <BlurView intensity={100} tint='light' experimentalBlurMethod="dimezisBlurView" className="overflow-hidden rounded-lg" >
+                                    <Text className="font-PoppinsRegular text-sm py-2 px-4">Featured</Text>
+                                </BlurView>
+
+                                <BlurView intensity={100} tint='light' experimentalBlurMethod="dimezisBlurView" className="overflow-hidden rounded-full p-3" >                                    
+                                    <Heart size={20} strokeWidth={1.5} className="stroke-neutral-800"/>
+                                </BlurView>
                             </View>
-                            <View className="flex flex-row gap-2 items-center">
-                                <MapPin size={16} strokeWidth={1.5} className="stroke-neutral-400"/>
-                                <Text className="info">Seattle, Washington</Text>
-                            </View>
-                        </View>
-                    </View>
+
+                            {/* Bottom Details */}
+                            <BlurView intensity={100} tint="light" className="absolute bottom-0 left-0 right-0 p-4 m-4 overflow-hidden rounded-lg">
+                                <View className="flex-row justify-between">
+                                    <Text className="title">{item.title}</Text>
+                                    <Text className="title">{item.price}</Text>
+                                </View>
+                                <View className="flex flex-row gap-2 items-center">
+                                    <MapPin size={16} strokeWidth={1.5} className="stroke-neutral-400"/>
+                                    <Text className="info">{item.location}</Text>
+                                </View>
+                            </BlurView>
+                        </ImageBackground>
+                    ))}
                 </ScrollView>
-
-
-
-
-                
-
-
-
-
-
-                
+ 
             </SafeAreaView>    
-        </View>
-        
+        </View>  
     );
 }
 
