@@ -84,15 +84,17 @@ const Listings = () => {
     }, []);
 
     // UI Testing (Simulating loading, error, and no listings)
-    // useEffect(() => {
+    // useEffect(() => { // Uncomment individual sections to test UI states
     //     // Simulating no listings UI
     //     setLoading(false); 
     //     setError(false);
     //     setListings([]);
+
     //     // Simulating loading UI
     //     setLoading(true);
     //     setError(false);
     //     setListings([]);
+    
     //     // Simulating error UI
     //     setLoading(false);
     //     setError(true);
@@ -195,20 +197,20 @@ const Listings = () => {
                                 <View className="h-16 w-16 bg-neutral-200 rounded-full"></View>
                                 <View className="flex flex-1">
                                     <View className="flex flex-row justify-between items-center">
-                                        <Text className="title flex-1 mr-4" numberOfLines={1} ellipsizeMode="tail">
+                                        <Text className="title-dark flex-1 mr-4" numberOfLines={1} ellipsizeMode="tail">
                                             {item.title}
                                         </Text>
-                                        <Text className="title">${item.price.toFixed(2)}</Text>
+                                        <Text className="title-dark">${item.price.toFixed(2)}</Text>
                                     </View>
                                     <View className="flex flex-row justify-between items-center">
                                         <View className="flex flex-row gap-2 items-center">
                                             <View className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`}></View> 
-                                            <Text className="info">{item.status.trim().charAt(0).toUpperCase() + item.status.trim().slice(1)}</Text>    
+                                            <Text className="info-light">{item.status.trim().charAt(0).toUpperCase() + item.status.trim().slice(1)}</Text>    
                                         </View>
                                         {item.is_featured && (
                                             <View className="flex flex-row gap-2 items-center">
                                                 <Rocket className="text-primary-400" size={16} />
-                                                <Text className="info">Featured</Text>    
+                                                <Text className="info-light">Featured</Text>    
                                             </View>
                                         )}
                                     </View>    

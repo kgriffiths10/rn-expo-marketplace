@@ -9,6 +9,7 @@ import { Heart, MapPin, PinIcon } from "lucide-react-native";
 import CustomButton from "@/components/CustomButton";
 import { ImageBackground } from "react-native";
 import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 
 
 const mockData = [
@@ -53,7 +54,7 @@ const Marketplace = () => {
                 {/* TODO: Implement default location from global state, then from filter*/}
                 <View className="flex flex-row gap-2 items-center mb-4">
                     <MapPin size={20} strokeWidth={1.5} className="stroke-neutral-400"/>
-                    <Text className="info">Seattle, Washington</Text>
+                    <Text className="info-dark">Seattle, Washington</Text>
                 </View>
 
                 <BannerAd />
@@ -91,7 +92,7 @@ const Marketplace = () => {
 
 
                                 <BlurView intensity={100} tint='light' experimentalBlurMethod="dimezisBlurView" className="overflow-hidden rounded-lg" >
-                                    <Text className="font-PoppinsRegular text-sm py-2 px-4">Featured</Text>
+                                    <Text className="info-dark py-2 px-4">Featured</Text>
                                 </BlurView>
 
                                 <BlurView intensity={100} tint='light' experimentalBlurMethod="dimezisBlurView" className="overflow-hidden rounded-full p-3" >                                    
@@ -100,16 +101,19 @@ const Marketplace = () => {
                             </View>
 
                             {/* Bottom Details */}
-                            <BlurView intensity={100} tint="light" className="absolute bottom-0 left-0 right-0 p-4 m-4 overflow-hidden rounded-lg">
+                            <LinearGradient
+                                colors={["transparent", "rgba(0,0,0,0.9)"]}
+                                className="absolute bottom-0 left-0 right-0 pt-12 p-4"
+                            >
                                 <View className="flex-row justify-between">
-                                    <Text className="title">{item.title}</Text>
-                                    <Text className="title">{item.price}</Text>
+                                    <Text className="title-white-xl" numberOfLines={1} ellipsizeMode="tail">{item.title}</Text>
+                                    <Text className="title-white-xl">{item.price}</Text>
                                 </View>
                                 <View className="flex flex-row gap-2 items-center">
-                                    <MapPin size={16} strokeWidth={1.5} className="stroke-neutral-400"/>
-                                    <Text className="info">{item.location}</Text>
+                                    <MapPin size={16} strokeWidth={1.5} className="stroke-neutral-100"/>
+                                    <Text className="info-white">{item.location}</Text>
                                 </View>
-                            </BlurView>
+                            </LinearGradient>
                         </ImageBackground>
                     ))}
                 </ScrollView>
