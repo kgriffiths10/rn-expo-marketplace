@@ -8,9 +8,10 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import { ScrollView, Text, View, TouchableWithoutFeedback, Keyboard, ActivityIndicator, TouchableOpacity, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { UserFilterState} from "@/types/type";
-import Filter from "@/components/bottom-sheets/listings/Filter";
+import FilterBottomSheet from "@/components/bottom-sheets/listings/Filter";
 import Sort from "@/components/bottom-sheets/listings/Sort";
 import { getSupabaseClient } from "@/lib/supabase";
+import { Listing, ListingFilters, DEFAULT_FILTERS } from "@/constants/listing";
 
 
 const Listings = () => {
@@ -19,7 +20,14 @@ const Listings = () => {
     // Add states for filtering
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Data fetching states
+    const [ loading, setLoading ] = useState(false);
+    const [ error, setError ] = useState(false);
+    const [ userListings, setUserListings ] = useState<Listing[]>([]);
+    const [refreshing, setRefreshing] = useState(false);
+    const [filters, setFilters] = useState<ListingFilters>({...DEFAULT_FILTERS});
 
+    // Status badge color
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'active':
@@ -35,52 +43,26 @@ const Listings = () => {
         }
     };
 
-    // Filter Listing Modal
-    const filterModalRef = useRef<BottomSheetModal>(null);
-    const presentFilterModal = useCallback(() => {
-        filterModalRef.current?.present();
-    }, []);
-    // Sort Listing Modal
-    const sortModalRef = useRef<BottomSheetModal>(null);
-    const presentSortModal = useCallback(() => {
-        sortModalRef.current?.present();
+    // Filter Listing Bottom Sheet
+    const filterBottomSheetRef = useRef<BottomSheetModal>(null);
+    const openFilters = useCallback(() => {
+        filterBottomSheetRef.current?.present();
     }, []);
 
+    // Sort Listing Bottom Sheet
+    const sortBottomSheetRef = useRef<BottomSheetModal>(null);
+    const openSort = useCallback(() => {
+        sortBottomSheetRef.current?.present();
+    }, []);
 
-    interface UserListingsFilters {
-        minPrice?: number;
-        maxPrice?: number;
-        categories?: string[];
-        condition?: string[];
-        status?: string[];
-        isFeaturedOnly?: boolean;
-        sortBy?: string;
-        sortDirection?: 'ASC' | 'DESC';
-      }
-    const [filters, setFilters] = useState<UserListingsFilters>({});
-
-    interface UserListings {
-        category_id: number;    
-        condition: "new" | "used" | "refurbished";
-        created_at: string;
-        description: string;
-        is_featured: boolean;
-        listing_id: string;
-        listing_views: number;
-        price: number;
-        status: "active" | "inactive" | "draft" | "sold";
-        title: string;
-    }
-
-
-    const [ loading, setLoading ] = useState(false);
-    const [ error, setError ] = useState(false);
-    const [ listings, setListings ] = useState<UserListings[]>([]);
-
-
+    // Set filters state from filter and sort bottom sheets
+    const handleSaveFilters = (updatedFilters: ListingFilters) => {
+        setFilters(updatedFilters);
+        fetchUserListings(updatedFilters);
+    };
 
     useEffect(() => {
-        fetchListings();
+        fetchUserListings();
     }, []);
 
     // UI Testing (Simulating loading, error, and no listings)
@@ -101,29 +83,57 @@ const Listings = () => {
     //     setListings([]);
     // }, []);
 
-
-    const fetchListings = async () => {
+    const fetchUserListings = async (currentFilters = filters) => {
         const token = await getToken({ template: "supabase" });
         setLoading(true);
         setError(false);
+        setRefreshing(true);
+
+        console.log('Fetching listings with filters:', currentFilters);
         try {
             const supabase = await getSupabaseClient(token);
 
-            const { data, error } = await supabase
+            let query = supabase
                 .from('user_listings')
-                .select('*');
+                .select('*')
             
+            // Dynamic Filtering
+            if (currentFilters.categories?.length > 0) {
+                query = query.in('category_id', currentFilters.categories);
+            }
+            if (currentFilters.conditions.length > 0) {
+                query = query.in('condition', currentFilters.conditions);
+            }
+            if (currentFilters.status.length > 0) {
+                query = query.in('status', currentFilters.status);
+            }
+            if (currentFilters.minPrice) {
+                query = query.gte('price', currentFilters.minPrice);
+            }
+            if (currentFilters.maxPrice) {
+                query = query.lte('price', currentFilters.maxPrice);
+            }
+            if (currentFilters.isFeaturedOnly) {
+                query = query.eq('is_featured', true);
+            }
+            if (currentFilters.sortBy) {
+                query = query.order(currentFilters.sortBy.column, { ascending: currentFilters.sortBy.ascending });
+            }
+
+            const { data, error } = await query;
+
             if (error) {
-                console.error('Error fetching listings:', error);
+                console.error('Error fetching user listings:', error);
                 throw error;
             }
             // console.log('Fetched listings:', data);
-            setListings(data);
+            setUserListings(data);
             
         } catch (error) {
-            console.error('Error fetching listings:', error);
+            console.error('Error fetching user listings:', error);
             setError(true);
         } finally {
+            setRefreshing(false);
             setLoading(false);
         }
     };
@@ -131,25 +141,28 @@ const Listings = () => {
 
     return (
         <View className="bg-white flex-1 px-4">
-
             {/* <Text>Min Price: {filters.minPrice}</Text>
             <Text>Max Price: {filters.maxPrice}</Text>
             <Text>Categories: {filters.categories}</Text>
-            <Text>Condition: {filters.condition}</Text>
+            <Text>Condition: {filters.conditions}</Text>
             <Text>Status: {filters.status}</Text>
             <Text>Featured Only: {filters.isFeaturedOnly ? 'On' : 'Off'}</Text> */}
+            {/* <Text>{filters.sortBy.label}</Text>
+            <Text>{filters.sortBy.column}</Text>
+            <Text>{filters.sortBy.ascending}</Text> */}
 
-
-            <Filter  
-                ref={filterModalRef}
+            <FilterBottomSheet  
+                ref={filterBottomSheetRef}
                 header='Filter Listings'
-                setFilters={setFilters}
+                filters={filters}
+                onFiltersSaved={handleSaveFilters}
             />
 
             <Sort 
-                ref={sortModalRef}
+                ref={sortBottomSheetRef}
                 header="Sort Listings"
-                setFilters={setFilters}
+                filters={filters}
+                onSortPress={handleSaveFilters}
             />
 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -159,16 +172,15 @@ const Listings = () => {
                         placeholder="Search your listings..."
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
-                        filterOpen={presentFilterModal}
+                        filterOpen={openFilters}
                         showFilterButton={true} 
                         showSortButton={true}
-                        sortOpen={presentSortModal}
+                        sortOpen={openSort}
                         containerStyle="mb-8"
                     />
                     <UserListingStats />
                 </SafeAreaView>
             </TouchableWithoutFeedback>
-            {/* <CustomButton title='Update Params' onPress={updateQueryParams}/> */}
 
             {loading ? (
                 <ActivityIndicator size="small" className="text-neutral-400 mt-24" />
@@ -178,8 +190,11 @@ const Listings = () => {
                     <Text className="text-md font-PoppinsRegular text-red-600 text-center mb-2">
                         Error fetching listings
                     </Text>
+                    <TouchableOpacity onPress={() => fetchUserListings()} className="mt-2 border px-4 py-2 rounded-md">
+                        <Text className="text-neutral-600">Reload</Text>
+                    </TouchableOpacity>
                 </View>
-            ) : listings?.length === 0 ? (
+            ) : userListings?.length === 0 ? (
                 <View className="mt-24 flex flex-col items-center justify-center">   
                     <Store size={24} strokeWidth={1.5} className="text-neutral-400 mb-2"/>
                     <Text className="text-md font-PoppinsRegular text-neutral-500 text-center mb-2">
@@ -188,40 +203,37 @@ const Listings = () => {
                 </View>
             ) : (
                 <FlatList
-                    data={listings}
+                    data={userListings}
                     keyExtractor={(item) => item.listing_id}
-                    // onRefresh={refetch}
-                    refreshing={loading}
+                    onRefresh={fetchUserListings}
+                    refreshing={refreshing}
                     renderItem={({ item }) => (
-                            <View key={item.listing_id} className="flex flex-row gap-4 p-4 mb-4 border border-neutral-200 rounded-2xl items-center">
-                                <View className="h-16 w-16 bg-neutral-200 rounded-full"></View>
-                                <View className="flex flex-1">
-                                    <View className="flex flex-row justify-between items-center">
-                                        <Text className="title-dark flex-1 mr-4" numberOfLines={1} ellipsizeMode="tail">
-                                            {item.title}
-                                        </Text>
-                                        <Text className="title-dark">${item.price.toFixed(2)}</Text>
+                        <View key={item.listing_id} className="flex flex-row gap-4 p-4 mb-4 border border-neutral-200 rounded-2xl items-center">
+                            <View className="h-16 w-16 bg-neutral-200 rounded-full"></View>
+                            <View className="flex flex-1">
+                                <View className="flex flex-row justify-between items-center">
+                                    <Text className="title-dark flex-1 mr-4" numberOfLines={1} ellipsizeMode="tail">
+                                        {item.title}
+                                    </Text>
+                                    <Text className="title-dark">${item.price.toFixed(2)}</Text>
+                                </View>
+                                <View className="flex flex-row justify-between items-center">
+                                    <View className="flex flex-row gap-2 items-center">
+                                        <View className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`}></View> 
+                                        <Text className="info-light">{item.status.trim().charAt(0).toUpperCase() + item.status.trim().slice(1)}</Text>    
                                     </View>
-                                    <View className="flex flex-row justify-between items-center">
+                                    {item.is_featured && (
                                         <View className="flex flex-row gap-2 items-center">
-                                            <View className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`}></View> 
-                                            <Text className="info-light">{item.status.trim().charAt(0).toUpperCase() + item.status.trim().slice(1)}</Text>    
+                                            <Rocket className="text-primary-400" size={16} />
+                                            <Text className="info-light">Featured</Text>    
                                         </View>
-                                        {item.is_featured && (
-                                            <View className="flex flex-row gap-2 items-center">
-                                                <Rocket className="text-primary-400" size={16} />
-                                                <Text className="info-light">Featured</Text>    
-                                            </View>
-                                        )}
-                                    </View>    
+                                    )}
                                 </View>    
                             </View>    
+                        </View>    
                     )}
                 />
             )}
-            
-            
-
         </View>
     );
 }

@@ -1,118 +1,85 @@
 import { View, Text, TouchableOpacity, Switch } from 'react-native'
-import React, { forwardRef, useCallback, useMemo, useState } from 'react'
+import React, { forwardRef, MutableRefObject, useCallback, useMemo, useState } from 'react'
 import { BottomSheetBackdrop, BottomSheetFooter, BottomSheetHandleProps, BottomSheetModal, BottomSheetScrollView, BottomSheetTextInput, BottomSheetView } from '@gorhom/bottom-sheet'
 import CustomButton from '../../CustomButton';
 import { UserFilterState } from '@/types/type';
 import { ChevronRight, ArrowUpDown, SortAsc, SortDesc, Eye, DollarSign, Text as TextIcon } from 'lucide-react-native';
+import { Listing, ListingFilters, DEFAULT_FILTERS, CATEGORIES, Condition, Status, SortOption, SORT_OPTIONS } from "@/constants/listing";
+import { bottomSheetCorners } from '@/constants/styles';
+import { Mutable } from 'react-native-reanimated/lib/typescript/commonTypes';
 
-export type Ref = BottomSheetModal;
-interface Props extends Partial<UserFilterState> {
+
+interface SortBottomSheetProps {
+    filters: ListingFilters;
     header?: string;
-    setFilters?: (filters: UserFilterState) => void;
+    onSortPress: (updatedFilters: ListingFilters) => void;
 }
 
-const Sort = forwardRef<Ref, Props>((props, ref) => {
-    // const snapPoints = useMemo(() => ['100%'], []);
+const Sort = forwardRef<BottomSheetModal, SortBottomSheetProps>(
+    ({filters, header, onSortPress}, ref) => {
+    
+    const bottomSheetRef = ref as MutableRefObject<BottomSheetModal | null>;
     const renderBackdrop = useCallback((props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
     
     const renderHeader = useCallback(
         (_: BottomSheetHandleProps) => (
             <View className='items-center mb-4'>
                 <View className='w-10 h-1 rounded-full bg-neutral-400 mt-4 mb-4'></View>
-                <Text className='bottom-sheet-heading my-4'>{props.header}</Text>
+                <Text className='bottom-sheet-heading my-4'>{header}</Text>
             </View>
         ),
-        [props.header]
+        [header]
     );
 
-    const sortOptions: { label: string; field: string; direction: 'ASC' | 'DESC'; icon: any }[] = [
-        { label: 'Newest', field: 'created_at', direction: 'DESC', icon: SortDesc },
-        { label: 'Oldest', field: 'created_at',  direction: 'ASC', icon: SortAsc },
-        { label: 'Price: Low to High', field: 'price',  direction: 'ASC', icon: DollarSign },
-        { label: 'Price: High to Low', field: 'price',  direction: 'DESC', icon: DollarSign },
-        { label: 'Most Viewed', field: 'listing_views',  direction: 'DESC', icon: Eye },
-        { label: 'Least Viewed', field: 'listing_views',  direction: 'ASC', icon: Eye },
-        { label: 'Title: A-Z', field: 'title', direction: 'ASC', icon: TextIcon },
-        { label: 'Title: Z-A', field: 'title', direction: 'DESC', icon: TextIcon },
-    ];
+    const iconSize = 18;
+    const iconStyle = 'stroke-neutral-400';
+    const getSortIcon = (column: string, direction: string) => {
+        if (column === 'price') return <DollarSign size={iconSize} className={iconStyle} />;
+        if (column === 'title') return <TextIcon size={iconSize} className={iconStyle} />;
+        if (column === 'created_at') return <ArrowUpDown size={iconSize} className={iconStyle} />;
+        if (column === 'listing_views') return <Eye size={iconSize} className={iconStyle} />;
+    }
 
-    const handleSort = (field: string, direction: 'ASC' | 'DESC') => {
-        props.setFilters && props.setFilters({
-            ...props,
-            sortBy: field,
-            sortDirection: direction
+    const [selectedSort, setSelectedSort] = useState<SortOption>(filters.sortBy);
+
+    const handleSelectOption = (option: SortOption) => {
+        setSelectedSort(option);
+        onSortPress({
+            ...filters,
+            sortBy: option
         });
+        bottomSheetRef.current?.dismiss();
     };
-    
-    // Temp states until saved, reduces API calls
-    const [tempSort, setTempSort] = useState<UserFilterState>({
-        sortBy: props.sortBy,
-        sortDirection: props.sortDirection
-    });
-
-    const renderFooter = useCallback(
-        (props: any) => ( 
-          <BottomSheetFooter {...props} bottomInset={0}>
-                <View className="p-8 bg-white shadow-md">
-                    <CustomButton title='Save Filters' onPress={saveFilters} />
-                </View>
-          </BottomSheetFooter>
-        ), 
-        [props.setFilters, tempSort]
-    );
-
-    const saveFilters = () => {
-        props.setFilters && props.setFilters({ 
-            sortBy: tempSort.sortBy
-        });
-    };
-
 
     return (
         <BottomSheetModal
             ref={ref}
-            // snapPoints={snapPoints}
             backdropComponent={renderBackdrop}
             handleComponent={renderHeader}
-            footerComponent={renderFooter}
             enableDynamicSizing={true}
             enableOverDrag={false}
-            backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-            
-            {...props}
+            backgroundStyle={bottomSheetCorners}
         >
             <BottomSheetView className='px-8 pb-8'>
-                {sortOptions.map((option) => {
-                    const IconComponent = option.icon;
-                    return (
-                        <TouchableOpacity
-                            key={option.label}
-                            onPress={() => handleSort(option.field, option.direction)}
-                            className="flex-row justify-between items-center py-4 border-b border-neutral-200"
-                        >
-                            <View className="flex-row items-center">
-                                <IconComponent size={20} color="black" className="mr-2 stroke-neutral-400" />
-                                <Text className="text-dark">{option.label}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    );
-                })}
-            </BottomSheetView>
+                {SORT_OPTIONS.map((option) => (
+                    <TouchableOpacity
+                        key={option.id}
+                        className='flex-row items-center justify-between mb-4'
+                        onPress={() => handleSelectOption(option)}>
+                        <View className='flex-row items-center gap-3'>
+                            {getSortIcon(option.column, option.ascending ? 'asc' : 'desc')}
+                            <Text className='label'>{option.label}</Text>
+                        </View>
+                        <View className='w-4 h-4 rounded-full border border-neutral-400 items-center justify-center'>
+                            {selectedSort.id === option.id && (
+                                <View className='w-4 h-4 rounded-full bg-primary-400'/>
+                            )}
+                        </View>
+                    </TouchableOpacity>
+                ))}
+            </BottomSheetView> 
         </BottomSheetModal>
     )
 });
 
 export default Sort;
-
-{/* 
-
-Newest → created_at DESC (most recent first)
-Oldest → created_at ASC (oldest first)
-Price: Low to High → price ASC
-Price: High to Low → price DESC
-Most Viewed → listing_views DESC
-Least Viewed → listing_views ASC
-Title: A-Z → title ASC
-Title: Z-A → title DESC
-    
-*/}

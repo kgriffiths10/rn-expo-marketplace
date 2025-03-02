@@ -90,6 +90,7 @@ const Messages = () => {
                 return;
             }
             console.log("Fetched user info:", data);
+            // Set a single data to user state
             setUser(data? data[0] : null);
         } catch (error) {
             console.error("Error fetching user info:", error);

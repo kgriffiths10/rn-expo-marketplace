@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+
+interface SelectOption {
+    id: number | string;
+    name: string;
+}
 
 interface SelectFieldProps {
     label?: string;
     subLabel?: string;
     labelStyle?: string;
-    options: { id: string, name: string }[];
-    selectedValues?: string[];
-    onChange?: (selected: string[]) => void;
+    options: SelectOption[];
+    selectedValues?: (string | number)[];
+    onChange?: (selected: (string | number)[]) => void;
     required?: boolean;
     multiple?: boolean;
     wrap?: boolean;
@@ -15,9 +20,14 @@ interface SelectFieldProps {
 }
 
 const SelectField = ({ label, subLabel, labelStyle, options, selectedValues = [], onChange, required = false, multiple = false, wrap = true, containerStyle }: SelectFieldProps) => {
-    const [selected, setSelected] = useState<string[]>(selectedValues);
+    const [selected, setSelected] = useState<(string | number)[]>(selectedValues);
+    
+    // Update local state when selectedValues prop changes
+    useEffect(() => {
+        setSelected(selectedValues);
+    }, [selectedValues]);
 
-    const handleSelect = (id: string) => {
+    const handleSelect = (id: string | number) => {
         let newSelected;
         if (multiple) {
             if (selected.includes(id)) {
@@ -28,7 +38,7 @@ const SelectField = ({ label, subLabel, labelStyle, options, selectedValues = []
         } else {
             newSelected = selected.includes(id) ? [] : [id];
         }
-
+        // Don't allow deselecting if required and would result in empty selection
         if (required && newSelected.length === 0) {
             return;
         }
