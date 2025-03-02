@@ -11,20 +11,6 @@ export enum Status {
     SOLD = 'sold'
 }
 
-// export enum SortOption {
-//     PRICE_ASC = 'price_asc',
-//     PRICE_DESC = 'price_desc',
-//     TITLE_ASC = 'title_asc',
-//     TITLE_DESC = 'title_desc',
-//     NEWEST = 'newest',
-//     OLDEST = 'oldest',
-//     MOST_VIEWS = 'most_views',
-//     LEAST_VIEWS = 'least_views',
-// }
-
-
-
-
 export interface Category {
     id: number;
     name: string;

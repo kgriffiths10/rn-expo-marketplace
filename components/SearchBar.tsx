@@ -1,5 +1,5 @@
 import { ArrowUpDown, Search, Settings2 } from "lucide-react-native";
-import { TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
+import { TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Text } from "react-native";
 
 type SearchBarProps = {
     placeholder: string;
@@ -9,11 +9,15 @@ type SearchBarProps = {
     sortOpen?: () => void;
     showFilterButton?: boolean;
     showSortButton?: boolean;
+    filterNotificationBadge?: number;
+    sortNotificationBadge?: number;
     containerStyle?: string; 
 }
 
-const SearchBar = ( {placeholder, searchQuery, setSearchQuery, filterOpen, sortOpen, showFilterButton = true, showSortButton = true, containerStyle }: SearchBarProps) => {
-    
+const SearchBar = ( {placeholder, searchQuery, setSearchQuery, filterOpen, sortOpen, showFilterButton = true, showSortButton = true, filterNotificationBadge, sortNotificationBadge, containerStyle }: SearchBarProps) => {
+    console.log('Filter badge:', filterNotificationBadge);
+
+
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <View className={`flex flex-row gap-2 ${containerStyle}`}>
@@ -26,15 +30,23 @@ const SearchBar = ( {placeholder, searchQuery, setSearchQuery, filterOpen, sortO
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                         enterKeyHint="search"
-                    />
+                    /> 
                 </View>
                 {/* Conditionally render Filter Button */}
                 {showFilterButton && (
                     <TouchableOpacity 
-                        className="border-neutral-300 border rounded-full align-center justify-center p-3"
+                        className="relative border-neutral-300 border rounded-full align-center justify-center p-3"
                         onPress={filterOpen}
                     >
                         <Settings2 className='stroke-neutral-800' />
+                        {/* Filter Badge */}
+                        {(filterNotificationBadge && filterNotificationBadge > 0) ? (
+                            <View className="bg-red-500 absolute -top-2 -right-1 w-6 h-6 rounded-full items-center justify-center">
+                                <Text className="text-center info-white">{filterNotificationBadge}</Text>
+                            </View>
+                        ) : null}
+                        
+                        
                     </TouchableOpacity>
                 )}
                 {/* Conditionally render Sort By Button */}
@@ -46,6 +58,10 @@ const SearchBar = ( {placeholder, searchQuery, setSearchQuery, filterOpen, sortO
                         <ArrowUpDown className='stroke-neutral-800' />
                     </TouchableOpacity>
                 )}
+
+
+                
+                
             </View>
         </KeyboardAvoidingView>
     );

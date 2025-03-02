@@ -4,7 +4,7 @@ import { useFetch } from "@/lib/fetch";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { CircleX, Rocket, Store } from "lucide-react-native";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, useMemo } from "react";
 import { ScrollView, Text, View, TouchableWithoutFeedback, Keyboard, ActivityIndicator, TouchableOpacity, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { UserFilterState} from "@/types/type";
@@ -17,15 +17,15 @@ import { Listing, ListingFilters, DEFAULT_FILTERS } from "@/constants/listing";
 const Listings = () => {
     const { getToken } = useAuth(); // Setting clerk auth token for supabase 
     
-    // Add states for filtering
-    const [searchQuery, setSearchQuery] = useState('');
+    
 
     // Data fetching states
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState(false);
     const [ userListings, setUserListings ] = useState<Listing[]>([]);
-    const [refreshing, setRefreshing] = useState(false);
-    const [filters, setFilters] = useState<ListingFilters>({...DEFAULT_FILTERS});
+    const [ refreshing, setRefreshing ] = useState(false);
+    const [ filters, setFilters ] = useState<ListingFilters>({...DEFAULT_FILTERS});
+    const [ searchQuery, setSearchQuery ] = useState('');
 
     // Status badge color
     const getStatusColor = (status: string) => {
@@ -61,9 +61,19 @@ const Listings = () => {
         fetchUserListings(updatedFilters);
     };
 
+    // Fetch listings on initial load
     useEffect(() => {
-        fetchUserListings();
+        fetchUserListings(); // Without filters
     }, []);
+
+    // Fetch listings on search query change
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchUserListings(filters);
+        }, 500);
+    
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     // UI Testing (Simulating loading, error, and no listings)
     // useEffect(() => { // Uncomment individual sections to test UI states
@@ -96,6 +106,8 @@ const Listings = () => {
             let query = supabase
                 .from('user_listings')
                 .select('*')
+                .ilike('title', `%${searchQuery}%`);
+
             
             // Dynamic Filtering
             if (currentFilters.categories?.length > 0) {
@@ -120,6 +132,7 @@ const Listings = () => {
                 query = query.order(currentFilters.sortBy.column, { ascending: currentFilters.sortBy.ascending });
             }
 
+
             const { data, error } = await query;
 
             if (error) {
@@ -138,6 +151,16 @@ const Listings = () => {
         }
     };
 
+    const getAppliedFilterCount = useMemo(() => {
+        let count = 0;
+        if (filters.minPrice !== undefined) count++;
+        if (filters.maxPrice !== undefined) count++;
+        count += filters.categories.length;
+        count += filters.conditions.length;
+        count += filters.status.length;
+        if (filters.isFeaturedOnly) count++;
+        return count;
+    }, [filters]);
 
     return (
         <View className="bg-white flex-1 px-4">
@@ -176,6 +199,7 @@ const Listings = () => {
                         showFilterButton={true} 
                         showSortButton={true}
                         sortOpen={openSort}
+                        filterNotificationBadge={getAppliedFilterCount}
                         containerStyle="mb-8"
                     />
                     <UserListingStats />
