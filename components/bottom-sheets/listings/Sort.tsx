@@ -15,7 +15,7 @@ interface SortBottomSheetProps {
     onSortPress: (updatedFilters: ListingFilters) => void;
 }
 
-const Sort = forwardRef<BottomSheetModal, SortBottomSheetProps>(
+const SortBottomSheet = forwardRef<BottomSheetModal, SortBottomSheetProps>(
     ({filters, header, onSortPress}, ref) => {
     
     const bottomSheetRef = ref as MutableRefObject<BottomSheetModal | null>;
@@ -82,4 +82,4 @@ const Sort = forwardRef<BottomSheetModal, SortBottomSheetProps>(
     )
 });
 
-export default Sort;
+export default SortBottomSheet;

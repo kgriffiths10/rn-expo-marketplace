@@ -15,9 +15,6 @@ type SearchBarProps = {
 }
 
 const SearchBar = ( {placeholder, searchQuery, setSearchQuery, filterOpen, sortOpen, showFilterButton = true, showSortButton = true, filterNotificationBadge, sortNotificationBadge, containerStyle }: SearchBarProps) => {
-    console.log('Filter badge:', filterNotificationBadge);
-
-
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <View className={`flex flex-row gap-2 ${containerStyle}`}>

@@ -42,21 +42,21 @@ const PriceField = ({
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View className="w-full mb-8">
+                <View className="w-full">
+                {label && (
                     <View className="mb-2">
                         {/* Label */}
-                        {label && (
                             <Text className={`label ${labelStyle}`}>
                                 {label} {required && <Text className="text-red-500">*</Text>}
                             </Text>
-                        )}
                         {/* Sub Label */}
                         {subLabel && (
                             <Text className="sub-label">
                                 {subLabel}
                             </Text>
                         )}    
-                    </View>
+                    </View>   
+                )}
 
                     {/* Input Container */}
                     <View className={`flex flex-row justify-start items-center relative rounded-xl border border-gray-300 focus:border-primary-400 w-full ${containerStyle}`}>

@@ -22,7 +22,7 @@
 
 
 .label {
-    @apply text-base font-PoppinsMedium text-neutral-900;
+    @apply text-base font-PoppinsMedium text-neutral-800;
 }
 .sub-label {
     @apply text-base font-PoppinsRegular text-neutral-500;
@@ -100,4 +100,16 @@ body {
 }
 .info-primary {
     @apply text-sm font-regular text-primary;
+}
+
+/* Body */
+
+.body-dark {
+    @apply text-base font-regular text-dark;
+}
+.body-light {
+    @apply text-base font-regular text-light;
+}
+.body-white {
+    @apply text-base font-regular text-xlight;
 }

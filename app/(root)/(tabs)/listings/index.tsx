@@ -12,11 +12,12 @@ import FilterBottomSheet from "@/components/bottom-sheets/listings/Filter";
 import Sort from "@/components/bottom-sheets/listings/Sort";
 import { getSupabaseClient } from "@/lib/supabase";
 import { Listing, ListingFilters, DEFAULT_FILTERS } from "@/constants/listing";
+import { router } from "expo-router";
+import SortBottomSheet from "@/components/bottom-sheets/listings/Sort";
 
 
 const Listings = () => {
     const { getToken } = useAuth(); // Setting clerk auth token for supabase 
-    
     
 
     // Data fetching states
@@ -95,6 +96,7 @@ const Listings = () => {
 
     const fetchUserListings = async (currentFilters = filters) => {
         const token = await getToken({ template: "supabase" });
+        
         setLoading(true);
         setError(false);
         setRefreshing(true);
@@ -181,7 +183,7 @@ const Listings = () => {
                 onFiltersSaved={handleSaveFilters}
             />
 
-            <Sort 
+            <SortBottomSheet 
                 ref={sortBottomSheetRef}
                 header="Sort Listings"
                 filters={filters}
@@ -232,7 +234,11 @@ const Listings = () => {
                     onRefresh={fetchUserListings}
                     refreshing={refreshing}
                     renderItem={({ item }) => (
-                        <View key={item.listing_id} className="flex flex-row gap-4 p-4 mb-4 border border-neutral-200 rounded-2xl items-center">
+                        <TouchableOpacity 
+                            key={item.listing_id} 
+                            className="flex flex-row gap-4 p-4 mb-4 border border-neutral-200 rounded-2xl items-center"
+                            onPress={() => router.push({ pathname: "/listings/[id]", params: { id: item.listing_id } })}
+                        >
                             <View className="h-16 w-16 bg-neutral-200 rounded-full"></View>
                             <View className="flex flex-1">
                                 <View className="flex flex-row justify-between items-center">
@@ -254,7 +260,7 @@ const Listings = () => {
                                     )}
                                 </View>    
                             </View>    
-                        </View>    
+                        </TouchableOpacity>    
                     )}
                 />
             )}
@@ -262,3 +268,25 @@ const Listings = () => {
     );
 }
 export default Listings;
+
+
+/*
+app
+    (auth)
+        ...
+    (root)
+        (tabs)
+            _layout.tsx
+            listings.tsx
+            marktplace.tsx
+            settings.tsx
+            favorites.tsx
+        _layout.tsx
+    _layout.tsx
+    index.tsx
+    +not-found.tsx
+assets
+components
+...
+
+*/

@@ -1,5 +1,7 @@
+import PriceKeypad from '@/components/form/PriceKeypad'
 import { useClerk } from '@clerk/clerk-expo'
 import * as Linking from 'expo-linking'
+import { Text, View } from 'react-native'
 import { Button } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -22,6 +24,7 @@ const Settings = () => {
     return (
             <SafeAreaView className="bg-white flex-1 p-4">
                 <SignOutButton />
+                <PriceKeypad />
             </SafeAreaView>
     
     );

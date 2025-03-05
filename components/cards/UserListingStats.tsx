@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import AddListing from '../bottom-sheets/listings/AddListing';
 import { getSupabaseClient } from '@/lib/supabase';
+import AddBottomSheet from '../bottom-sheets/listings/Add';
 
 const InteropLinearGradient = cssInterop(LinearGradient, {
     className: {
@@ -84,7 +85,7 @@ const UserListingStats = () => {
                 <CustomButton 
                     title='Add Listing' 
                     onPress={presentAddListingBottomSheet}
-                    bgVariant='secondary'
+                    bgVariant='dark'
                     IconLeft={() => <Plus className='stroke-neutral-50 mr-2' size={20} />}
                 />
                 <View className='flex flex-row justify-between'>
@@ -115,7 +116,9 @@ const UserListingStats = () => {
                 </View>
             </InteropLinearGradient>
 
-            <AddListing ref={addListingBottomSheetRef} />
+            {/* <AddListing ref={addListingBottomSheetRef} /> */}
+
+            <AddBottomSheet ref={addListingBottomSheetRef}  />
         </View>
     );
 };

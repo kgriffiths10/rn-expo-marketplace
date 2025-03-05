@@ -3,8 +3,8 @@ import { TouchableOpacityProps, TextInputProps } from "react-native";
 
 declare interface ButtonProps extends TouchableOpacityProps {
   title: string;
-  bgVariant?: "primary" | "secondary" | "danger" | "outline" | "success";
-  textVariant?: "primary" | "default" | "secondary" | "danger" | "success";
+  bgVariant?: "primary" | "dark" | "secondary" | "danger" | "outline" | "success";
+  textVariant?: "primary" | "dark" | "default" | "secondary" | "danger" | "success";
   IconLeft?: React.ComponentType<any>;
   IconRight?: React.ComponentType<any>;
   className?: string;

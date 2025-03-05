@@ -61,7 +61,7 @@ const SelectField = ({ label, subLabel, labelStyle, options, selectedValues = []
 
     return (
         <View className={`${containerStyle}`}>
-            {(label || subLabel) && (
+            {(label) && (
                 <View className="mb-2">
                     {label && (
                         <Text className={`label ${labelStyle}`}>
