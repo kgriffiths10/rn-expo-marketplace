@@ -10,8 +10,9 @@ This is a comprehensive React Native marketplace application built with [Expo](h
 
 
 <div align="center">
-  <img src="assets/screenshots/mockup_2.png" alt="three-screen-mockup" width="100%"/>
+  <img src="assets/images/mockup-screenshots/mockup_2.png" alt="three-screen-mockup" width="100%"/>
 </div>
+
 
 ## Key Features
 
@@ -22,6 +23,12 @@ This is a comprehensive React Native marketplace application built with [Expo](h
 - **Styling**: Tailwind CSS for consistent and responsive styling.
 - **File-Based Routing**: Simplified navigation with Expo Router.
 - **Icon Integration**: Rich iconography with Lucide icons and nativewind styling.
+- **Fully custom form components**: Checkbox, RadioButton, Autocomplete, ComboBox, Dropdown, DatePicker, etc. for flexible, reusable inputs.
+
+<div align="center">
+  <img src="assets/images/ui-component-screenshots/ui-component-mockup.png" alt="ui-form-components-mockup" width="100%"/>
+</div>
+
 
 ## Tech Stack
 - **React Native & Expo SDK**
@@ -33,7 +40,7 @@ This is a comprehensive React Native marketplace application built with [Expo](h
 
 
 <div align="center">
-  <img src="assets/screenshots/mockup_1.png" alt="multi-screen-mockup" width="100%"/>
+  <img src="assets/images/mockup-screenshots/mockup_1.png" alt="multi-screen-mockup" width="100%"/>
 </div>
 
 ## ⭐ Support & Contributions  

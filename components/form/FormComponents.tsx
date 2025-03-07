@@ -854,7 +854,7 @@ export const Button: React.FC<ButtonProps> = ({
 			disabled={disabled}
 			className={`
           flex-row items-center justify-center
-          rounded-lg border
+          rounded-full border
           ${variantStyles.container}
           ${sizeStyles}
           ${fullWidth ? "w-full" : ""}
