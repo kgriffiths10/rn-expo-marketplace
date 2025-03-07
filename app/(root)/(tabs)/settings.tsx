@@ -24,7 +24,6 @@ const Settings = () => {
     return (
             <SafeAreaView className="bg-white flex-1 p-4">
                 <SignOutButton />
-                <PriceKeypad />
             </SafeAreaView>
     
     );

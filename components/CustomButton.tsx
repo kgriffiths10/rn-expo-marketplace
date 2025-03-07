@@ -4,13 +4,13 @@ import { ButtonProps } from "@/types/type";
 const getBgVariantStyle = (variant: ButtonProps["bgVariant"]) => {
   switch (variant) {
     case "secondary":
-      return "bg-neutral-400";
+      return "bg-neutral-200";
     case "primary":
       return "bg-primary-400";
     case "dark":
       return "bg-neutral-800";
     case "danger":
-      return "bg-transparent border-red-500 border-[1px]";
+      return "border border-1 border-red-300";
     case "success":
       return "bg-green-500";
     case "outline":

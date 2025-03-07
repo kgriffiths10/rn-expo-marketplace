@@ -64,7 +64,7 @@ body {
     @apply text-neutral-100;
 }
 .text-primary {
-    @apply text-primary-500;
+    @apply text-primary-400;
 }
 
 /* Title */
@@ -112,4 +112,16 @@ body {
 }
 .body-white {
     @apply text-base font-regular text-xlight;
+}
+
+/* Form Styling */
+.form-label {
+    @apply text-lg text-primary font-regular;
+}
+
+.form-sub-label {
+    @apply text-sm font-regular text-light;
+}
+.form-value-label {
+    @apply text-sm font-regular;
 }
