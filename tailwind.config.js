@@ -34,15 +34,15 @@ module.exports = {
           900: "#661E20", // Very dark shade, for text or deep accents
         },
         secondary: {
-          100: "#F8F8F8",
-          200: "#F1F1F1",
-          300: "#D9D9D9",
-          400: "#C2C2C2",
-          500: "#AAAAAA",
-          600: "#999999",
-          700: "#666666",
-          800: "#4D4D4D",
-          900: "#333333",
+          100: "#E0E0FF",  // Lightest variant
+          200: "#B3B3FF",  // Light variant
+          300: "#8080FF",  // Light-medium variant
+          400: "#5A5FFF",  // Base color (main color)
+          500: "#4A4AE6",  // Slightly darker variant
+          600: "#3A3AD1",  // Dark variant
+          700: "#2A2A9C",  // Darker variant
+          800: "#1A1A66",  // Even darker variant
+          900: "#0A0A33",  // Darkest variant
         },
         success: {
           100: "#F0FFF4",

@@ -14,7 +14,7 @@
     @apply text-base font-medium text-dark;
 }
 .title-white {
-    @apply text-base font-medium text-white;
+    @apply text-base font-medium text-neutral-50;
 }
 
 
@@ -61,7 +61,7 @@ body {
     @apply text-neutral-500;
 }
 .text-xlight {
-    @apply text-neutral-100;
+    @apply text-neutral-50;
 }
 .text-primary {
     @apply text-primary-400;
@@ -118,10 +118,12 @@ body {
 .form-label {
     @apply text-lg text-primary font-regular;
 }
-
 .form-sub-label {
     @apply text-sm font-regular text-light;
 }
 .form-value-label {
     @apply text-sm font-regular;
+}
+.form-error {
+    @apply text-sm font-regular text-red-500;
 }

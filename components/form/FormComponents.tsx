@@ -5,7 +5,7 @@ import {
   ScrollView,
   Pressable,
   TextInput,
-  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -25,6 +25,22 @@ import {
   Calendar,
 } from "lucide-react-native";
 
+/*
+
+global.css custom classes used in the components:
+	form-label
+	form-sub-label
+	form-value-label
+
+tailwindcss config
+
+
+*/
+
+// Make sure they all have errors if required
+
+
+/* -------------------- CHECKBOX -------------------- */
 
 interface CheckboxProps {
 	values: string[];
@@ -43,6 +59,9 @@ interface CheckboxProps {
 	activeCheckboxClassName?: string;
 	checkboxLabelClassName?: string;
 	activeCheckboxLabelClassName?: string;
+	icon?: boolean;
+	error?: string;
+	errorClassName?: string;
 }
 
 export const Checkbox: React.FC<CheckboxProps> = ({
@@ -62,6 +81,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 	activeCheckboxClassName = "",
 	checkboxLabelClassName = "",
 	activeCheckboxLabelClassName = "",
+	icon = false,
+	error,
+	errorClassName = "",
 }) => {
 	const handleToggle = (value: string) => {
 		const newSelectedValues = selectedValues.includes(value)
@@ -90,13 +112,18 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 								: "border-neutral-300"
 						} ${checkboxClassName} ${isSelected ? activeCheckboxClassName : ""}`}
 					>
-						<Text
-							className={`form-value-label ${isSelected ? "text-white" : "text-neutral-800"} ${checkboxLabelClassName} ${
-								isSelected ? activeCheckboxLabelClassName : ""
-							}`}
-						>
-							{value}
-						</Text>
+						<View className="flex-row items-center">
+							{isSelected && icon && (
+								<Check size={16} color="white" style={{ marginRight: 8 }} />
+							)}
+							<Text
+								className={`form-value-label ${isSelected ? "text-white" : "text-neutral-800"} ${checkboxLabelClassName} ${
+									isSelected ? activeCheckboxLabelClassName : ""
+								}`}
+							>
+								{value}
+							</Text>
+						</View>
 					</Pressable>
 				);
 			}
@@ -106,13 +133,13 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 					<Pressable
 						onPress={() => handleToggle(value)}
 						className={`w-6 h-6 rounded border items-center justify-center mr-2 ${
-							isSelected ? "bg-primary-400 border-primary-400" : "border-gray-300"
+							isSelected ? "bg-primary-400 border-primary-400" : "border-neutral-300"
 						} ${checkboxClassName} ${isSelected ? activeCheckboxClassName : ""}`}
 					>
 						{isSelected && <Check size={16} color="white" />}
 					</Pressable>
 					<Text
-						className={`text-sm font-regular text-gray-700 ${checkboxLabelClassName} ${
+						className={`text-sm font-regular text-neutral-800 ${checkboxLabelClassName} ${
 							isSelected ? activeCheckboxLabelClassName : ""
 						}`}
 					>
@@ -159,9 +186,16 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 			</View>
 			
 			{renderCheckboxes()}
+			{error && required && selectedValues.length === 0 && (
+				<Text className={`form-error mt-1 ${errorClassName}`}>
+					{error}
+				</Text>
+			)}
 		</View>
 	);
 };
+
+/* -------------------- RADIO BUTTON -------------------- */
 
 interface RadioButtonProps {
 	values: string[];
@@ -180,6 +214,9 @@ interface RadioButtonProps {
 	activeRadioClassName?: string;
 	radioLabelClassName?: string;
 	activeRadioLabelClassName?: string;
+	icon?: boolean;
+	error?: string;
+	errorClassName?: string;
 }
 
 export const RadioButton: React.FC<RadioButtonProps> = ({
@@ -199,6 +236,9 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 	activeRadioClassName = "",
 	radioLabelClassName = "",
 	activeRadioLabelClassName = "",
+	icon = false,
+	error,
+	errorClassName = "",
 }) => {
 	const handleSelect = (value: string) => {
 		if (!required && value === selectedValue) {
@@ -220,16 +260,21 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 						className={`px-4 py-2 rounded-lg border mb-2 mr-2 ${
 							isSelected
 								? "bg-primary-400 border-primary-400"
-								: "border-gray-300"
+								: "border-neutral-300"
 						} ${radioClassName} ${isSelected ? activeRadioClassName : ""}`}
 					>
-						<Text
-							className={`form-value-label ${isSelected ? "text-white" : "text-neutral-800"} ${radioLabelClassName} ${
-								isSelected ? activeRadioLabelClassName : ""
-							}`}
-						>
-							{value}
-						</Text>
+						<View className="flex-row items-center">
+							{isSelected && icon && (
+								<Check size={16} color="white" style={{ marginRight: 8 }} />
+							)}
+							<Text
+								className={`form-value-label ${isSelected ? "text-white" : "text-neutral-800"} ${radioLabelClassName} ${
+									isSelected ? activeRadioLabelClassName : ""
+								}`}
+							>
+								{value}
+							</Text>
+						</View>
 					</Pressable>
 				);
 			}
@@ -239,7 +284,7 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 					<Pressable
 						onPress={() => handleSelect(value)}
 						className={`w-6 h-6 rounded-full border items-center justify-center mr-2 ${
-							isSelected ? "border-primary-400" : "border-gray-300"
+							isSelected ? "border-primary-400" : "border-neutral-300"
 						} ${radioClassName} ${isSelected ? activeRadioClassName : ""}`}
 					>
 						{isSelected && (
@@ -294,11 +339,17 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 			</View>
 			
 			{renderRadioButtons()}
+			{error && required && !selectedValue && (
+				<Text className={`form-error mt-1 ${errorClassName}`}>
+					{error}
+				</Text>
+			)}
 		</View>
 	);
 };
 
 
+/* -------------------- AUTOCOMPLETE -------------------- */
 
 interface AutoCompleteProps {
 	values: string[];
@@ -386,7 +437,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 		const parts = text.split(new RegExp(`(${query})`, "gi"));
 		return parts.map((part, index) =>
 			part.toLowerCase() === query.toLowerCase() ? (
-				<Text key={index} className="text-blue-500 font-medium">
+				<Text key={index} className="text-primary-400 font-medium">
 					{part}
 				</Text>
 			) : (
@@ -397,24 +448,23 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 
 	return (
 		<View className={containerClassName}>
-			{mainLabel && (
-				<Text className={` ${labelClassName}`}>
-					{mainLabel}
-					{required && <Text className="text-red-500"> *</Text>}
-				</Text>
-			)}
-			{subLabel && <Text className={` ${subLabelClassName}`}>{subLabel}</Text>}
+			<View className='mb-3'>
+				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{subLabel && (
+					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+				)}	
+			</View>
 
 			<View
 				className={`
-          flex-row items-center
-          px-4 py-3 rounded-lg border
-          ${disabled ? "bg-gray-100 border-gray-200" : "bg-white border-gray-300"}
-          ${isOpen ? "border-blue-500" : ""}
-          ${error ? "border-red-500" : ""}
-          ${inputClassName}
-          ${isOpen ? activeInputClassName : ""}
-        `}
+					flex-row items-center
+					px-4 py-3 rounded-lg border
+					${disabled ? "bg-neutral-100 border-neutral-200" : "bg-white border-neutral-300"}
+					${isOpen ? "border-primary-400" : ""}
+					${error ? "border-red-500" : ""}
+					${inputClassName}
+					${isOpen ? activeInputClassName : ""}
+					`}
 			>
 				<Search size={20} color="#6B7280" className="mr-2" />
 				<TextInput
@@ -423,7 +473,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 					onFocus={() => searchText.length >= minChars && setIsOpen(true)}
 					placeholder={placeholder}
 					placeholderTextColor="#9CA3AF"
-					className="flex-1 text-base text-gray-700"
+					className="flex-1 form-value-label"
 					editable={!disabled}
 				/>
 				{searchText ? (
@@ -434,7 +484,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 			</View>
 
 			<Animated.View
-				className="overflow-hidden rounded-lg border border-gray-300 mt-1"
+				className="overflow-hidden rounded-lg border border-neutral-300 mt-1"
 				style={animatedStyle}
 			>
 				<ScrollView bounces={false}>
@@ -444,17 +494,17 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 							onPress={() => handleSelect(value)}
 							className={`
                 px-4 py-3
-                ${value === selectedValue ? "bg-blue-50" : "bg-white"}
-                ${value === filteredValues[filteredValues.length - 1] ? "" : "border-b border-gray-200"}
+                ${value === selectedValue ? "bg-primary-100" : "bg-white"}
+                ${value === filteredValues[filteredValues.length - 1] ? "" : "border-b border-neutral-200"}
                 ${optionClassName}
                 ${value === selectedValue ? activeOptionClassName : ""}
               `}
 						>
 							<Text
 								className={`
-                  text-base
-                  ${value === selectedValue ? "text-blue-500" : "text-gray-700"}
-                `}
+								form-value-label
+								${value === selectedValue ? "text-primary-400" : "text-neutral-800"}
+								`}
 							>
 								{highlightMatch ? highlightText(value, searchText) : value}
 							</Text>
@@ -462,14 +512,14 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 					))}
 					{filteredValues.length === 0 && searchText.length >= minChars && (
 						<View className="px-4 py-3">
-							<Text className="text-base text-gray-500">No results found</Text>
+							<Text className="form-value-label text-neutral-500">No results found</Text>
 						</View>
 					)}
 				</ScrollView>
 			</Animated.View>
 
 			{error && (
-				<Text className={`text-sm text-red-500 mt-1 ${errorClassName}`}>
+				<Text className={`form-error mt-1 ${errorClassName}`}>
 					{error}
 				</Text>
 			)}
@@ -477,6 +527,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 	);
 };
 
+/* -------------------- COMBOBOX -------------------- */
 
 interface ComboBoxProps {
 	values: string[];
@@ -555,28 +606,23 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 
 	return (
 		<View className={containerClassName}>
-			{mainLabel && (
-				<Text className={`text-base font-medium mb-1 ${labelClassName}`}>
-					{mainLabel}
-					{required && <Text className="text-red-500"> *</Text>}
-				</Text>
-			)}
-			{subLabel && (
-				<Text className={`text-sm text-gray-500 mb-3 ${subLabelClassName}`}>
-					{subLabel}
-				</Text>
-			)}
+			<View className='mb-3'>
+				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{subLabel && (
+					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+				)}	
+			</View>
 
 			<View>
 				<View className="flex-row flex-wrap gap-2 mb-2">
 					{selectedValues.map((value) => (
 						<View
 							key={value}
-							className={`flex-row items-center bg-blue-100 rounded-full px-3 py-1 ${tagClassName} ${activeTagClassName}`}
+							className={`flex-row items-center bg-primary-100 rounded-full px-3 py-1 ${tagClassName} ${activeTagClassName}`}
 						>
-							<Text className="text-blue-700 mr-2">{value}</Text>
+							<Text className="text-primary-700 mr-2 font-regular text-sm">{value}</Text>
 							<Pressable onPress={() => removeTag(value)}>
-								<Text className="text-blue-700 font-bold">×</Text>
+								<Text className="text-primary-700 font-bold">×</Text>
 							</Pressable>
 						</View>
 					))}
@@ -584,14 +630,14 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 
 				<View
 					className={`
-              flex-row items-center
-              px-4 py-3 rounded-lg border
-              ${disabled ? "bg-gray-100 border-gray-200" : "bg-white border-gray-300"}
-              ${isOpen ? "border-blue-500" : ""}
-              ${error ? "border-red-500" : ""}
-              ${inputClassName}
-              ${isOpen ? activeInputClassName : ""}
-            `}
+						flex-row items-center
+						px-4 py-3 rounded-lg border
+						${disabled ? "bg-neutral-100 border-neutral-200" : "bg-white border-neutral-300"}
+						${isOpen ? "border-primary-400" : ""}
+						${error ? "border-red-500" : ""}
+						${inputClassName}
+						${isOpen ? activeInputClassName : ""}
+						`}
 				>
 					<Search size={20} color="#6B7280" className="mr-2" />
 					<TextInput
@@ -600,13 +646,13 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 						onFocus={() => setIsOpen(true)}
 						placeholder={placeholder}
 						placeholderTextColor="#9CA3AF"
-						className="flex-1 text-base text-gray-700"
+						className="flex-1 form-value-label text-neutral-800"
 						editable={!disabled}
 					/>
 				</View>
 
 				<Animated.View
-					className="overflow-hidden rounded-lg border border-gray-300 mt-1"
+					className="overflow-hidden rounded-lg border border-neutral-300 mt-1"
 					style={animatedStyle}
 				>
 					<ScrollView bounces={false}>
@@ -616,22 +662,22 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 								onPress={() => handleToggleValue(value)}
 								className={`
                     flex-row items-center px-4 py-3
-                    ${selectedValues.includes(value) ? "bg-blue-50" : "bg-white"}
-                    ${value === filteredValues[filteredValues.length - 1] ? "" : "border-b border-gray-200"}
+                    ${selectedValues.includes(value) ? "bg-primary-100" : "bg-white"}
+                    ${value === filteredValues[filteredValues.length - 1] ? "" : "border-b border-neutral-200"}
                     ${optionClassName}
                     ${selectedValues.includes(value) ? activeOptionClassName : ""}
                   `}
 							>
 								<Text
 									className={`
-                      text-base flex-1
-                      ${selectedValues.includes(value) ? "text-blue-500" : "text-gray-700"}
-                    `}
+									form-value-label flex-1
+									${selectedValues.includes(value) ? "text-primary-400" : "text-neutral-800"}
+									`}
 								>
 									{value}
 								</Text>
 								{selectedValues.includes(value) && (
-									<Text className="text-blue-500">✓</Text>
+									<Text className="text-primary-400">✓</Text>
 								)}
 							</Pressable>
 						))}
@@ -640,7 +686,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 			</View>
 
 			{error && (
-				<Text className={`text-sm text-red-500 mt-1 ${errorClassName}`}>
+				<Text className={`form-error mt-1 ${errorClassName}`}>
 					{error}
 				</Text>
 			)}
@@ -649,6 +695,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 };
 
 
+/* -------------------- BUTTON -------------------- */
 
 type ButtonVariant =
 	| "primary"
@@ -657,6 +704,7 @@ type ButtonVariant =
 	| "dark"
 	| "light"
 	| "primary-outline"
+	| "secondary-outline"
 	| "dark-outline"
 	| "light-outline"
 	| "danger"
@@ -674,7 +722,6 @@ interface ButtonProps {
 	leftIcon?: React.ReactNode;
 	rightIcon?: React.ReactNode;
 	disabled?: boolean;
-	loading?: boolean;
 	size?: "sm" | "md" | "lg";
 	fullWidth?: boolean;
 	customStyle?: {
@@ -688,8 +735,6 @@ interface ButtonProps {
 	pressedTextClassName?: string;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export const Button: React.FC<ButtonProps> = ({
 	onPress,
 	variant = "primary",
@@ -697,7 +742,6 @@ export const Button: React.FC<ButtonProps> = ({
 	leftIcon,
 	rightIcon,
 	disabled = false,
-	loading = false,
 	size = "md",
 	fullWidth = false,
 	customStyle,
@@ -710,40 +754,46 @@ export const Button: React.FC<ButtonProps> = ({
 		const styles: {
 			container: string;
 			text: string;
-		} = { container: "", text: "" };
+			icon: string;
+		} = { container: "", text: "", icon: "" };
 
 		switch (variant) {
 			case "primary":
-				styles.container = "bg-blue-500 border-blue-500";
+				styles.container = "bg-primary-400 border-primary-400";
 				styles.text = "text-white";
 				break;
 			case "secondary":
-				styles.container = "bg-gray-500 border-gray-500";
+				styles.container = "bg-secondary-400 border-secondary-400";
 				styles.text = "text-white";
 				break;
 			case "tertiary":
-				styles.container = "bg-transparent";
-				styles.text = "text-blue-500";
+				styles.container = "bg-primary-700 border-primary-700";
+				styles.text = "text-white";
 				break;
 			case "dark":
-				styles.container = "bg-gray-900 border-gray-900";
+				styles.container = "bg-neutral-800 border-neutral-800";
 				styles.text = "text-white";
 				break;
 			case "light":
-				styles.container = "bg-gray-100 border-gray-100";
-				styles.text = "text-gray-900";
+				styles.container = "bg-neutral-300 border-neutral-300";
+				styles.text = "text-neutral-800";
 				break;
 			case "primary-outline":
-				styles.container = "bg-transparent border-blue-500";
-				styles.text = "text-blue-500";
+				styles.container = "bg-transparent border-primary-400";
+				styles.text = "text-primary-400";
+				break;
+			case "secondary-outline":
+				styles.container = "bg-transparent border-secondary-400";
+				styles.text = "text-secondary-400";
 				break;
 			case "dark-outline":
-				styles.container = "bg-transparent border-gray-900";
-				styles.text = "text-gray-900";
+				styles.container = "bg-transparent border-neutral-800";
+				styles.text = "text-neutral-800";
 				break;
 			case "light-outline":
-				styles.container = "bg-transparent border-gray-100";
-				styles.text = "text-gray-100";
+				styles.container = "bg-transparent border-neutral-400";
+				styles.text = "text-neutral-800";
+				styles.icon = "#1F2937";
 				break;
 			case "danger":
 				styles.container = "bg-red-500 border-red-500";
@@ -793,16 +843,15 @@ export const Button: React.FC<ButtonProps> = ({
 	const variantStyles = getVariantStyles();
 	const sizeStyles = getSizeStyles();
 
-	const animatedStyle = useAnimatedStyle(() => {
-		return {
-			transform: [{ scale: withSpring(disabled ? 1 : 0.98) }],
-		};
-	});
+	const iconElement = (icon: React.ReactNode) => {
+		if (!icon) return null;
+		return icon; 
+	};
 
 	return (
-		<AnimatedPressable
+		<TouchableOpacity
 			onPress={onPress}
-			disabled={disabled || loading}
+			disabled={disabled}
 			className={`
           flex-row items-center justify-center
           rounded-lg border
@@ -812,33 +861,25 @@ export const Button: React.FC<ButtonProps> = ({
           ${disabled ? "opacity-50" : ""}
           ${containerClassName}
         `}
-			style={animatedStyle}
 		>
-			{loading ? (
-				<ActivityIndicator
-					color={variant.includes("outline") ? "#3B82F6" : "#FFFFFF"}
-				/>
-			) : (
-				<>
-					{leftIcon && <View className="mr-2">{leftIcon}</View>}
-					<Text
-						className={`
-                font-medium
+			{leftIcon && <View className="mr-2">{iconElement(leftIcon)}</View>}
+			<Text
+				className={`
+                font-regular
                 ${variantStyles.text}
                 ${size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-base"}
                 ${textClassName}
               `}
-					>
-						{text}
-					</Text>
-					{rightIcon && <View className="ml-2">{rightIcon}</View>}
-				</>
-			)}
-		</AnimatedPressable>
+			>
+				{text}
+			</Text>
+			{rightIcon && <View className="ml-2">{iconElement(rightIcon)}</View>}
+		</TouchableOpacity>
 	);
 };
 
 
+/* -------------------- DROPDOWN -------------------- */
 
 interface DropdownProps {
 	values: string[];
@@ -848,7 +889,7 @@ interface DropdownProps {
 	subLabel?: string;
 	placeholder?: string;
 	required?: boolean;
-	rightIcon?: React.ReactNode;
+	leftIcon?: React.ReactNode;
 	disabled?: boolean;
 	error?: string;
 	containerClassName?: string;
@@ -870,7 +911,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 	subLabel,
 	placeholder = "Select an option",
 	required = false,
-	rightIcon,
+	leftIcon,
 	disabled = false,
 	error,
 	containerClassName = "",
@@ -901,49 +942,45 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
 	return (
 		<View className={containerClassName}>
-			{mainLabel && (
-				<Text className={`text-base font-medium mb-1 ${labelClassName}`}>
-					{mainLabel}
-					{required && <Text className="text-red-500"> *</Text>}
-				</Text>
-			)}
-			{subLabel && (
-				<Text className={`text-sm text-gray-500 mb-3 ${subLabelClassName}`}>
-					{subLabel}
-				</Text>
-			)}
+			
+			<View className="mb-3">
+				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{subLabel && (
+					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+				)}	
+			</View>
 
 			<Pressable
 				onPress={() => !disabled && setIsOpen(!isOpen)}
 				className={`
             flex-row items-center justify-between
             px-4 py-3 rounded-lg border
-            ${disabled ? "bg-gray-100 border-gray-200" : "bg-white border-gray-300"}
-            ${isOpen ? "border-blue-500" : ""}
+            ${disabled ? "bg-neutral-100 border-neutral-200" : "bg-white border-neutral-300"}
+            ${isOpen ? "border-primary-400" : ""}
             ${error ? "border-red-500" : ""}
             ${dropdownClassName}
             ${isOpen ? activeDropdownClassName : ""}
           `}
 			>
-				<Text
-					className={`
-              text-base
-              ${disabled ? "text-gray-400" : "text-gray-700"}
-              ${!selectedValue ? "text-gray-400" : ""}
-            `}
-				>
-					{selectedValue || placeholder}
-				</Text>
-				<View className="flex-row items-center">
-					{rightIcon}
-					<Animated.View style={iconRotation}>
-						<ChevronDown size={20} color={disabled ? "#9CA3AF" : "#4B5563"} />
-					</Animated.View>
+				<View className="flex-row items-center gap-4">
+					{leftIcon}
+					<Text
+						className={`
+							form-value-label
+							${disabled ? "text-neutral-400" : "text-neutral-800"}
+							${!selectedValue ? "text-neutral-400" : ""}
+							`}
+					>
+						{selectedValue || placeholder}
+					</Text>
 				</View>
+				<Animated.View style={iconRotation}>
+					<ChevronDown size={20} color={disabled ? "#9CA3AF" : "#4B5563"} />
+				</Animated.View>
 			</Pressable>
 
 			<Animated.View
-				className="overflow-hidden rounded-lg border border-gray-300 mt-1"
+				className="overflow-hidden rounded-lg border border-neutral-300 mt-1"
 				style={animatedStyle}
 			>
 				<ScrollView bounces={false}>
@@ -956,16 +993,16 @@ export const Dropdown: React.FC<DropdownProps> = ({
 							}}
 							className={`
                   px-4 py-3
-                  ${value === selectedValue ? "bg-blue-50" : "bg-white"}
-                  ${value === values[values.length - 1] ? "" : "border-b border-gray-200"}
+                  ${value === selectedValue ? "bg-primary-100" : "bg-white"}
+                  ${value === values[values.length - 1] ? "" : "border-b border-neutral-200"}
                   ${optionClassName}
                   ${value === selectedValue ? activeOptionClassName : ""}
                 `}
 						>
 							<Text
 								className={`
-                    text-base
-                    ${value === selectedValue ? "text-blue-500" : "text-gray-700"}
+                    form-value-label
+                    ${value === selectedValue ? "text-primary-400" : "text-neutral-800"}
                   `}
 							>
 								{value}
@@ -976,7 +1013,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 			</Animated.View>
 
 			{error && (
-				<Text className={`text-sm text-red-500 mt-1 ${errorClassName}`}>
+				<Text className={`form-error mt-1 ${errorClassName}`}>
 					{error}
 				</Text>
 			)}
@@ -985,6 +1022,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 };
 
 
+/* -------------------- DATEPICKER -------------------- */
 
 interface DatePickerProps {
 	selectedDate: Date | null;
@@ -1036,24 +1074,19 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
 	return (
 		<View className={containerClassName}>
-			{mainLabel && (
-				<Text className={`text-base font-medium mb-1 ${labelClassName}`}>
-					{mainLabel}
-					{required && <Text className="text-red-500"> *</Text>}
-				</Text>
-			)}
-			{subLabel && (
-				<Text className={`text-sm text-gray-500 mb-3 ${subLabelClassName}`}>
-					{subLabel}
-				</Text>
-			)}
+			<View className='mb-3'>
+				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{subLabel && (
+					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+				)}	
+			</View>
 
 			<Pressable
 				onPress={() => !disabled && setIsOpen(true)}
 				className={`
             flex-row items-center justify-between
             px-4 py-3 rounded-lg border
-            ${disabled ? "bg-gray-100 border-gray-200" : "bg-white border-gray-300"}
+            ${disabled ? "bg-neutral-100 border-neutral-200" : "bg-white border-neutral-300"}
             ${error ? "border-red-500" : ""}
             ${pickerClassName}
             ${isOpen ? activePickerClassName : ""}
@@ -1061,9 +1094,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 			>
 				<Text
 					className={`
-              text-base
-              ${disabled ? "text-gray-400" : "text-gray-700"}
-              ${!selectedDate ? "text-gray-400" : ""}
+              form-value-label
+              ${disabled ? "text-neutral-400" : "text-neutral-800"}
+              ${!selectedDate ? "text-neutral-400" : ""}
             `}
 				>
 					{selectedDate ? format(selectedDate, dateFormat) : placeholder}
@@ -1085,7 +1118,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 			/>
 
 			{error && (
-				<Text className={`text-sm text-red-500 mt-1 ${errorClassName}`}>
+				<Text className={`form-error mt-1 ${errorClassName}`}>
 					{error}
 				</Text>
 			)}
