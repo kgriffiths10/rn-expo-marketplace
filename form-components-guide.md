@@ -2,7 +2,14 @@
 
 This guide provides an overview and usage instructions for the custom form components available in this project. These components are designed to be flexible and customizable to fit various form requirements.
 
-Components can be found in FormComponents.tsx.
+Components can be found in **FormComponents.tsx** and imported as `<ComponentName />`.
+
+An **interactive demo** can be found at FormComponentsDemo.tsx.
+
+## Tailwind & Global CSS
+Tailwind’s configuration (tailwind.config.js) customizes utility classes (colors, spacing, etc.), and global.css contains shared styles (e.g., form-label). These ensure consistent, uniform styling throughout the project. These styles can be changed as you wish.
+
+Uses lucide-react-native icons, in order for classname stroke-color to apply, cssInterop required, unless other icon set is used.
 
 ## Components
 
@@ -27,6 +34,7 @@ The `RadioButton` component allows users to select a single option from a list o
 - `activeRadioClassName`: string - Custom class name for active radio buttons.
 - `radioLabelClassName`: string - Custom class name for radio button labels.
 - `activeRadioLabelClassName`: string - Custom class name for active radio button labels.
+- `icon`: boolean - Whether to show an icon on the selected option
 
 ### Dropdown
 
@@ -40,7 +48,7 @@ The `Dropdown` component provides a dropdown menu for selecting a single option 
 - `subLabel`: string - Sub-label for the dropdown.
 - `placeholder`: string - Placeholder text.
 - `required`: boolean - Whether selection is required.
-- `rightIcon`: React.ReactNode - Custom right icon.
+- `leftIcon`: React.ReactNode - Custom left icon.
 - `disabled`: boolean - Whether the dropdown is disabled.
 - `error`: string - Error message.
 - `containerClassName`: string - Custom class name for the container.
@@ -124,6 +132,7 @@ The `Checkbox` component allows users to select multiple options from a list of 
 - `activeCheckboxClassName`: string - Custom class name for active checkboxes.
 - `checkboxLabelClassName`: string - Custom class name for checkbox labels.
 - `activeCheckboxLabelClassName`: string - Custom class name for active checkbox labels.
+- `icon`: boolean - Whether to show an icon on the selected checkbox
 
 ### Button
 
@@ -136,7 +145,6 @@ The `Button` component provides a customizable button with various styles and si
 - `leftIcon`: React.ReactNode - Custom left icon.
 - `rightIcon`: React.ReactNode - Custom right icon.
 - `disabled`: boolean - Whether the button is disabled.
-- `loading`: boolean - Whether the button shows a loading indicator.
 - `size`: 'sm' | 'md' | 'lg' - Button size.
 - `fullWidth`: boolean - Whether the button takes full width.
 - `customStyle`: { backgroundColor?: string; textColor?: string; borderColor?: string; } - Custom styles for the button.
@@ -170,4 +178,6 @@ The `AutoComplete` component provides a search input with auto-complete suggesti
 - `activeOptionClassName`: string - Custom class name for active options.
 - `errorClassName`: string - Custom class name for error message.
 - `maxHeight`: number - Maximum height of the suggestions list.
+
+
 

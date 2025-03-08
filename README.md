@@ -23,7 +23,7 @@ This is a comprehensive React Native marketplace application built with [Expo](h
 - **Styling**: Tailwind CSS for consistent and responsive styling.
 - **File-Based Routing**: Simplified navigation with Expo Router.
 - **Icon Integration**: Rich iconography with Lucide icons and nativewind styling.
-- **Fully custom form components**: Checkbox, RadioButton, Autocomplete, ComboBox, Dropdown, DatePicker, etc. for flexible, reusable inputs.
+- **Fully custom form components**: Checkbox, RadioButton, Autocomplete, ComboBox, Dropdown, DatePicker, etc. for flexible, reusable inputs. View the form-components-guide for more info.
 
 <div align="center">
   <img src="assets/images/ui-component-screenshots/ui-component-mockup.png" alt="ui-form-components-mockup" width="100%"/>
