@@ -30,6 +30,9 @@ import {
 	ComboBox,
 	Dropdown,
 	RadioButton,
+	Input,
+	PriceInput,
+	DualPriceInput,        
 } from "@/components/form/FormComponents";
 
 
@@ -43,6 +46,10 @@ const FormComponentsDemo = () => {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 	const [selectedCity, setSelectedCity] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [textValue, setTextValue] = useState("");
+	const [price, setPrice] = useState("");
+	const [minPrice, setMinPrice] = useState("");
+	const [maxPrice, setMaxPrice] = useState("");
 
 	const handleSubmit = () => {
 		setLoading(true);
@@ -65,8 +72,25 @@ const FormComponentsDemo = () => {
 						onValueChange={setSelectedCategories}
 						required
 						error="Please select at least one interest"
-						wrap
-						wrapAlignment="left"
+						orientation="wrap"
+						boxStyle={true}
+						labelClassName="form-label"
+						subLabelClassName="form-sub-label"
+						checkboxLabelClassName="form-value-label"
+						icon
+						
+					/>
+
+					<Checkbox
+						mainLabel="Interests"
+						subLabel="What topics interest you?"
+						values={["Technology", "Art", "Science", "Travel", "Food", "Music", "Sports"]}
+						selectedValues={selectedCategories}
+						onValueChange={setSelectedCategories}
+						required
+						error="Please select at least one interest"
+						orientation="wrap"
+						alignment="center"
 						boxStyle={true}
 						labelClassName="form-label"
 						subLabelClassName="form-sub-label"
@@ -86,6 +110,7 @@ const FormComponentsDemo = () => {
 						labelClassName="form-label"
 						subLabelClassName="form-sub-label"
 						checkboxLabelClassName="form-value-label"
+						orientation="scroll"
 					/>
 
 					<Checkbox
@@ -104,6 +129,25 @@ const FormComponentsDemo = () => {
 						labelClassName="form-label"
 						subLabelClassName="form-sub-label"
 						checkboxLabelClassName="form-value-label"
+						orientation="scroll"
+					/>
+					<Checkbox
+						mainLabel="Newsletter Preferences"
+						subLabel="Choose your subscription types"
+						values={[
+							"Daily Digest",
+							"Weekly Updates",
+							"Special Offers",
+							"Product News",
+						]}
+						selectedValues={selectedCategories}
+						onValueChange={setSelectedCategories}
+						boxStyle={false}
+						required={false}
+						labelClassName="form-label"
+						subLabelClassName="form-sub-label"
+						checkboxLabelClassName="form-value-label"
+						orientation="list"
 					/>
 				</View>
 				
@@ -120,10 +164,9 @@ const FormComponentsDemo = () => {
 						onValueChange={setSelectedSize}
 						required
 						error="Please select your experience level"
-						wrap
-						wrapAlignment="left"
 						boxStyle={true}
 						icon
+						orientation="wrap"
 					/>
 					<RadioButton
 						mainLabel="Experience Level"
@@ -132,9 +175,8 @@ const FormComponentsDemo = () => {
 						selectedValue={selectedSize}
 						onValueChange={setSelectedSize}
 						required={false}
-						wrap={false}
-						wrapAlignment="left"
 						boxStyle={true}
+						orientation="scroll"
 					/>
 					<RadioButton
 						mainLabel="Experience Level"
@@ -143,9 +185,30 @@ const FormComponentsDemo = () => {
 						selectedValue={selectedSize}
 						onValueChange={setSelectedSize}
 						required={false}
-						wrap={false}
-						wrapAlignment="left"
 						boxStyle={false}
+						orientation="scroll"
+					/>
+					<RadioButton
+						mainLabel="Experience Level"
+						subLabel="Select your expertise"
+						values={["Beginner", "Intermediate", "Advanced", "Expert"]}
+						selectedValue={selectedSize}
+						onValueChange={setSelectedSize}
+						required={false}
+						boxStyle={false}
+						orientation="list"
+					/>
+					<RadioButton
+						mainLabel="Experience Level"
+						subLabel="Select your expertise"
+						values={["Beginner", "Intermediate", "Advanced", "Expert"]}
+						selectedValue={selectedSize}
+						onValueChange={setSelectedSize}
+						required={false}
+						boxStyle={false}
+						orientation="list"
+						alignment="center"
+						containerClassName="items-center"
 					/>
 				</View>
 
@@ -222,6 +285,46 @@ const FormComponentsDemo = () => {
 						error={selectedDate ? '' : 'Please select a start date'}
 					/>
 				</View>
+
+				 {/* Text Input Example */}
+				 <View className=" flex gap-4 mb-16">
+					<Text className="text-2xl font-medium mb-4">Text Input</Text>
+					<Input
+						mainLabel="Enter Your Name"
+						subLabel="Please provide your full name"
+						value={textValue}
+						onChangeText={setTextValue}
+						required
+						error={!textValue ? "Name is required" : ""}
+					/>
+				</View>
+
+
+				{/* Price Input Example */}
+				<View className=" flex gap-4 mb-16">
+					<Text className="text-2xl font-medium mb-4">Price Input</Text>
+					<PriceInput
+						mainLabel="Single Price Input"
+						subLabel="Enter the price"
+						value={price}
+						onChangeText={setPrice}
+						required
+					/>
+
+					<View style={{ height: 24 }} />
+
+					<DualPriceInput
+						mainLabel="Price Range (Row)"
+						subLabel="Enter the price range"
+						minValue={minPrice}
+						maxValue={maxPrice}
+						onMinChange={setMinPrice}
+						onMaxChange={setMaxPrice}
+						required
+						orientation="row"
+					/>
+				</View>
+
 
 				{/* Buttons */}
 				<View className=" flex gap-4 mb-16">

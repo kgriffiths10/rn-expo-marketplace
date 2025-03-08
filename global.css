@@ -122,7 +122,7 @@ body {
     @apply text-sm font-regular text-light;
 }
 .form-value-label {
-    @apply text-sm font-regular;
+    @apply text-base font-regular;
 }
 .form-error {
     @apply text-sm font-regular text-red-500;

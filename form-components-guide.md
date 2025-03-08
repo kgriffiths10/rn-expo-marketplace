@@ -35,6 +35,8 @@ The `RadioButton` component allows users to select a single option from a list o
 - `radioLabelClassName`: string - Custom class name for radio button labels.
 - `activeRadioLabelClassName`: string - Custom class name for active radio button labels.
 - `icon`: boolean - Whether to show an icon on the selected option
+- `orientation`: "wrap" | "scroll" | "list"
+- `alignment`: "left" | "center" | "right" for the options when wrap or list orientation is set.
 
 ### Dropdown
 
@@ -133,6 +135,8 @@ The `Checkbox` component allows users to select multiple options from a list of 
 - `checkboxLabelClassName`: string - Custom class name for checkbox labels.
 - `activeCheckboxLabelClassName`: string - Custom class name for active checkbox labels.
 - `icon`: boolean - Whether to show an icon on the selected checkbox
+- `orientation`: "wrap" | "scroll" | "list"
+- `alignment`: "left" | "center" | "right" for the options when wrap or list orientation is set.
 
 ### Button
 
@@ -178,6 +182,46 @@ The `AutoComplete` component provides a search input with auto-complete suggesti
 - `activeOptionClassName`: string - Custom class name for active options.
 - `errorClassName`: string - Custom class name for error message.
 - `maxHeight`: number - Maximum height of the suggestions list.
+
+### Input
+
+The `Input` component is a reusable text input with optional icons and error handling.
+
+**Props:**
+- `mainLabel`?: string
+- `subLabel`?: string
+- `error`?: string
+- `required`?: boolean
+- `leftIcon`?: React.ReactNode
+- `rightIcon`?: React.ReactNode
+- `clearable`?: boolean
+- `value`?: string
+- `onChangeText`?: (text: string) => void
+
+### PriceInput
+
+The `PriceInput` component formats numeric input as a price.
+
+**Props:**
+- `value`: string
+- `onChangeText`: (value: string) => void
+- `mainLabel`?: string
+- `subLabel`?: string
+- `error`?: string
+- `required`?: boolean
+- `disabled`?: boolean
+- `placeholder`?: string
+
+### DualPriceInput
+
+The `DualPriceInput` component provides two `PriceInput` fields for specifying minimum and maximum price.
+
+**Props:**
+- `minValue`: string
+- `maxValue`: string
+- `onMinChange`: (value: string) => void
+- `onMaxChange`: (value: string) => void
+- `orientation`?: "row" | "column"
 
 
 

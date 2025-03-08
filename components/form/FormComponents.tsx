@@ -1,17 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   Pressable,
-  TextInput,
+  TextInput as RNTextInput,
   TouchableOpacity,
+  TextInputProps,
+  TextInput,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
   interpolate,
+  runOnJS,
+  useSharedValue,
 } from "react-native-reanimated";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from "date-fns";
@@ -23,7 +27,9 @@ import {
   ChevronDown,
   ChevronUp,
   Calendar,
+  DollarSign,
 } from "lucide-react-native";
+import { Gesture, GestureDetector, PanGesture } from "react-native-gesture-handler";
 
 /*
 
@@ -49,8 +55,6 @@ interface CheckboxProps {
 	mainLabel?: string;
 	subLabel?: string;
 	required?: boolean;
-	wrap?: boolean;
-	wrapAlignment?: "left" | "center" | "right";
 	boxStyle?: boolean;
 	containerClassName?: string;
 	labelClassName?: string;
@@ -62,6 +66,8 @@ interface CheckboxProps {
 	icon?: boolean;
 	error?: string;
 	errorClassName?: string;
+	orientation?: "wrap" | "scroll" | "list";
+	alignment?: "left" | "center" | "right";
 }
 
 export const Checkbox: React.FC<CheckboxProps> = ({
@@ -71,8 +77,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 	mainLabel,
 	subLabel,
 	required = false,
-	wrap = false,
-	wrapAlignment = "left",
 	boxStyle = false,
 	containerClassName = "",
 	labelClassName = "",
@@ -84,6 +88,8 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 	icon = false,
 	error,
 	errorClassName = "",
+	orientation = "wrap",
+	alignment = "left",
 }) => {
 	const handleToggle = (value: string) => {
 		const newSelectedValues = selectedValues.includes(value)
@@ -149,40 +155,45 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 			);
 		});
 
-		if (wrap) {
+		if (orientation === "wrap") {
+			const alignmentClass = alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start";
 			return (
-				<View
-					className={`flex-row flex-wrap ${
-						wrapAlignment === "center"
-							? "justify-center"
-							: wrapAlignment === "right"
-								? "justify-end"
-								: "justify-start"
-					}`}
-				>
+				<View className={`flex-row flex-wrap ${alignmentClass}`}>
 					{checkboxes}
 				</View>
 			);
+		} else if (orientation === "scroll") {
+			return (
+				<ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible">
+					<View className="flex-row">{checkboxes}</View>
+				</ScrollView>
+			);
+		} else if (orientation === "list") {
+			const alignmentClass = alignment === "center" ? "items-center" : alignment === "right" ? "items-end" : "items-start";
+			return (
+				<View className={`${alignmentClass}`}>
+					{checkboxes.map((item, idx) => (
+						<View key={idx} className="mb-2">
+							{item}
+						</View>
+					))}
+				</View>
+			);
 		}
-
-		return (
-			<ScrollView
-				horizontal
-				showsHorizontalScrollIndicator={false}
-				className="overflow-visible"
-			>
-				<View className="flex-row">{checkboxes}</View>
-			</ScrollView>
-		);
 	};
 
 	return (
 		<View className={containerClassName}>
-			<View className="mb-3">
-				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+			<View className='mb-3'>
+				{mainLabel && (
+					<Text className={`form-label ${labelClassName}`}>
+					{mainLabel}
+					{required && <Text className="text-red-500"> *</Text>}
+					</Text>
+				)}
 				{subLabel && (
 					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
-				)}	
+				)}
 			</View>
 			
 			{renderCheckboxes()}
@@ -204,8 +215,6 @@ interface RadioButtonProps {
 	mainLabel?: string;
 	subLabel?: string;
 	required?: boolean;
-	wrap?: boolean;
-	wrapAlignment?: "left" | "center" | "right";
 	boxStyle?: boolean;
 	containerClassName?: string;
 	labelClassName?: string;
@@ -217,6 +226,8 @@ interface RadioButtonProps {
 	icon?: boolean;
 	error?: string;
 	errorClassName?: string;
+	orientation?: "wrap" | "scroll" | "list";
+	alignment?: "left" | "center" | "right";
 }
 
 export const RadioButton: React.FC<RadioButtonProps> = ({
@@ -226,8 +237,6 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 	mainLabel,
 	subLabel,
 	required = false,
-	wrap = false,
-	wrapAlignment = "left",
 	boxStyle = false,
 	containerClassName = "",
 	labelClassName = "",
@@ -239,6 +248,8 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 	icon = false,
 	error,
 	errorClassName = "",
+	orientation = "wrap",
+	alignment = "left",
 }) => {
 	const handleSelect = (value: string) => {
 		if (!required && value === selectedValue) {
@@ -302,40 +313,45 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
 			);
 		});
 
-		if (wrap) {
+		if (orientation === "wrap") {
+			const alignmentClass = alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start";
 			return (
-				<View
-					className={`flex-row flex-wrap ${
-						wrapAlignment === "center"
-							? "justify-center"
-							: wrapAlignment === "right"
-								? "justify-end"
-								: "justify-start"
-					}`}
-				>
+				<View className={`flex-row flex-wrap ${alignmentClass}`}>
 					{radioButtons}
 				</View>
 			);
+		} else if (orientation === "scroll") {
+			return (
+				<ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible">
+					<View className="flex-row">{radioButtons}</View>
+				</ScrollView>
+			);
+		} else if (orientation === "list") {
+			const alignmentClass = alignment === "center" ? "items-center" : alignment === "right" ? "items-end" : "items-start";
+			return (
+				<View className={`${alignmentClass}`}>
+					{radioButtons.map((item, idx) => (
+						<View key={idx} className="mb-2">
+							{item}
+						</View>
+					))}
+				</View>
+			);
 		}
-
-		return (
-			<ScrollView
-				horizontal
-				showsHorizontalScrollIndicator={false}
-				className="overflow-visible"
-			>
-				<View className="flex-row">{radioButtons}</View>
-			</ScrollView>
-		);
 	};
 
 	return (
 		<View className={containerClassName}>
 			<View className='mb-3'>
-				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{mainLabel && (
+					<Text className={`form-label ${labelClassName}`}>
+					{mainLabel}
+					{required && <Text className="text-red-500"> *</Text>}
+					</Text>
+				)}
 				{subLabel && (
 					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
-				)}	
+				)}
 			</View>
 			
 			{renderRadioButtons()}
@@ -449,10 +465,15 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 	return (
 		<View className={containerClassName}>
 			<View className='mb-3'>
-				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{mainLabel && (
+					<Text className={`form-label ${labelClassName}`}>
+					{mainLabel}
+					{required && <Text className="text-red-500"> *</Text>}
+					</Text>
+				)}
 				{subLabel && (
 					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
-				)}	
+				)}
 			</View>
 
 			<View
@@ -467,7 +488,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 					`}
 			>
 				<Search size={20} color="#6B7280" className="mr-2" />
-				<TextInput
+				<RNTextInput
 					value={searchText}
 					onChangeText={setSearchText}
 					onFocus={() => searchText.length >= minChars && setIsOpen(true)}
@@ -607,10 +628,15 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 	return (
 		<View className={containerClassName}>
 			<View className='mb-3'>
-				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{mainLabel && (
+					<Text className={`form-label ${labelClassName}`}>
+					{mainLabel}
+					{required && <Text className="text-red-500"> *</Text>}
+					</Text>
+				)}
 				{subLabel && (
 					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
-				)}	
+				)}
 			</View>
 
 			<View>
@@ -640,7 +666,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 						`}
 				>
 					<Search size={20} color="#6B7280" className="mr-2" />
-					<TextInput
+					<RNTextInput
 						value={searchText}
 						onChangeText={setSearchText}
 						onFocus={() => setIsOpen(true)}
@@ -780,7 +806,7 @@ export const Button: React.FC<ButtonProps> = ({
 				break;
 			case "primary-outline":
 				styles.container = "bg-transparent border-primary-400";
-				styles.text = "text-primary-400";
+					styles.text = "text-primary-400";
 				break;
 			case "secondary-outline":
 				styles.container = "bg-transparent border-secondary-400";
@@ -943,11 +969,16 @@ export const Dropdown: React.FC<DropdownProps> = ({
 	return (
 		<View className={containerClassName}>
 			
-			<View className="mb-3">
-				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+			<View className='mb-3'>
+				{mainLabel && (
+					<Text className={`form-label ${labelClassName}`}>
+					{mainLabel}
+					{required && <Text className="text-red-500"> *</Text>}
+					</Text>
+				)}
 				{subLabel && (
 					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
-				)}	
+				)}
 			</View>
 
 			<Pressable
@@ -1075,10 +1106,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 	return (
 		<View className={containerClassName}>
 			<View className='mb-3'>
-				{mainLabel && <Text className={`form-label ${labelClassName}`}>{mainLabel}</Text>}
+				{mainLabel && (
+					<Text className={`form-label ${labelClassName}`}>
+					{mainLabel}
+					{required && <Text className="text-red-500"> *</Text>}
+					</Text>
+				)}
 				{subLabel && (
 					<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
-				)}	
+				)}
 			</View>
 
 			<Pressable
@@ -1125,3 +1161,288 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 		</View>
 	);
 };
+
+/* -------------------- TEXTINPUT -------------------- */
+
+interface CustomTextInputProps extends TextInputProps {
+	mainLabel?: string;
+	subLabel?: string;
+	error?: string;
+	required?: boolean;
+	leftIcon?: React.ReactNode;
+	rightIcon?: React.ReactNode;
+	clearable?: boolean;
+	containerClassName?: string; 
+	labelClassName?: string;     
+	subLabelClassName?: string;  
+	inputClassName?: string;     
+	errorClassName?: string;     
+  }
+  
+export const Input: React.FC<CustomTextInputProps> = ({
+	mainLabel,
+	subLabel,
+	error,
+	required = false,
+	leftIcon,
+	rightIcon,
+	clearable = false,
+	value,
+	onChangeText,
+	placeholder = 'Enter text',
+	containerClassName,
+	labelClassName,
+	subLabelClassName,
+	inputClassName,
+	errorClassName,
+	...props
+	}) => {
+	const handleClear = () => {
+		onChangeText?.('');
+	};
+
+	return (
+		<View className={containerClassName}>
+		<View className='mb-3'>
+			{mainLabel && (
+				<Text className={`form-label ${labelClassName}`}>
+				{mainLabel}
+				{required && <Text className="text-red-500"> *</Text>}
+				</Text>
+			)}
+			{subLabel && (
+				<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+			)}
+		</View>
+
+		<View
+			className={`
+			flex-row items-center
+			px-4 py-3 rounded-lg border
+			${props.editable === false ? 'bg-neutral-100 border-gray-200' : 'bg-white border-neutral-300'}
+			${error ? 'border-red-500' : ''}
+			${inputClassName}
+			`}
+		>
+			{leftIcon && <View className="mr-2">{leftIcon}</View>}
+			<TextInput
+			className="flex-1 form-value-label text-neutral-800"
+			value={value}
+			onChangeText={onChangeText}
+			placeholder={placeholder}
+			placeholderTextColor="#9CA3AF"
+			{...props}
+			/>
+			{clearable && value ? (
+			<TouchableOpacity onPress={handleClear} className="ml-2">
+				<X size={20} className="stroke-neutral-800" />
+			</TouchableOpacity>
+			) : rightIcon ? (
+			<View className="ml-2">{rightIcon}</View>
+			) : null}
+		</View>
+
+		{error && (
+			<Text className={`form-error mt-1 ${errorClassName}`}>
+				{error}
+			</Text>
+		)}
+		</View>
+	);
+};
+
+
+/* -------------------- PRICE INPUT -------------------- */
+
+
+interface PriceInputProps {
+	value: string;
+	onChangeText: (value: string) => void;
+	mainLabel?: string;
+	subLabel?: string;
+	error?: string;
+	required?: boolean;
+	disabled?: boolean;
+	placeholder?: string;
+	labelClassName?: string;
+	subLabelClassName?: string;
+	errorClassName?: string;
+	containerClassName?: string;
+  }
+  
+  interface DualPriceInputProps extends Omit<PriceInputProps, 'value' | 'onChangeText'> {
+	minValue: string;
+	maxValue: string;
+	onMinChange: (value: string) => void;
+	onMaxChange: (value: string) => void;
+	orientation?: 'row' | 'column';
+  }
+  
+  const formatPrice = (value: string): string => {
+	if (!value) return '';
+  
+	// Remove non-numeric characters except decimal point
+	const cleanValue = value.replace(/[^\d.]/g, '');
+	
+	// Handle multiple decimal points
+	const parts = cleanValue.split('.');
+	const wholePart = parts[0];
+	const decimalPart = parts.slice(1).join('');
+  
+	// Format decimal places
+	if (decimalPart) {
+	  return `${wholePart}.${decimalPart.slice(0, 2).padEnd(2, '0')}`;
+	} else {
+	  return wholePart ? `${wholePart}.00` : '';
+	}
+  };
+  
+  export const PriceInput: React.FC<PriceInputProps> = ({
+	value,
+	onChangeText,
+	mainLabel,
+	subLabel,
+	error,
+	required = false,
+	disabled = false,
+	placeholder = '0.00',
+	labelClassName,
+	subLabelClassName,
+	errorClassName,
+	containerClassName,
+  }) => {
+	const [isFocused, setIsFocused] = useState(false);
+  
+	const handleChangeText = (text: string) => {
+	  onChangeText(text.replace(/[^\d.]/g, ''));
+	};
+  
+	const handleBlur = () => {
+	  setIsFocused(false);
+	  if (value) {
+		onChangeText(formatPrice(value));
+	  }
+	};
+  
+	return (
+		<View className={containerClassName}>
+		<View className='mb-3'>
+			{mainLabel && (
+				<Text className={`form-label ${labelClassName}`}>
+				{mainLabel}
+				{required && <Text className="text-red-500"> *</Text>}
+				</Text>
+			)}
+			{subLabel && (
+				<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+			)}
+		</View>
+
+  
+		<View
+		  className={`flex-row items-center px-4 py-3 rounded-lg border bg-white
+			${disabled ? 'opacity-50' : ''}
+			${error ? 'border-red-500' : 'border-neutral-300'}
+			${isFocused ? 'border-primary-400' : ''}`
+		  }
+		>
+		  <View className="mr-2">
+			<DollarSign size={20} color="#6B7280" />
+		  </View>
+		  <TextInput
+			className="flex-1 form-value-label text-neutral-800"
+			onFocus={() => setIsFocused(true)}
+			onBlur={() => {
+			  setIsFocused(false);
+			  if (value) {
+				onChangeText(formatPrice(value));
+			  }
+			}}
+			value={value}
+			onChangeText={handleChangeText}
+			placeholder={placeholder}
+			placeholderTextColor="#9CA3AF"
+			keyboardType="decimal-pad"
+			editable={!disabled}
+		  />
+		</View>
+  
+		{error && (
+			<Text className={`form-error mt-1 ${errorClassName}`}>
+				{error}
+			</Text>
+		)}
+	  </View>
+	);
+  };
+  
+  export const DualPriceInput: React.FC<DualPriceInputProps> = ({
+	minValue,
+	maxValue,
+	onMinChange,
+	onMaxChange,
+	mainLabel,
+	subLabel,
+	errorClassName,
+	error,
+	labelClassName,
+	subLabelClassName,
+	required = false,
+	disabled = false,
+	orientation = 'row',
+	placeholder = '0.00',
+	containerClassName,
+  }) => {
+	return (
+		<View className={containerClassName}>
+		<View className='mb-3'>
+			{mainLabel && (
+				<Text className={`form-label ${labelClassName}`}>
+				{mainLabel}
+				{required && <Text className="text-red-500"> *</Text>}
+				</Text>
+			)}
+			{subLabel && (
+				<Text className={`form-sub-label ${subLabelClassName}`}>{subLabel}</Text>
+			)}
+		</View>
+  
+		<View className={`${orientation === 'row' ? 'flex-row gap-2 items-center' : 'flex-col space-y-2'}`}>
+		  <View className={`${orientation === 'row' ? 'flex-1' : 'w-full'}`}>
+			<PriceInput
+			  value={minValue}
+			  onChangeText={onMinChange}
+			  placeholder={placeholder}
+			  disabled={disabled}
+			  mainLabel={orientation === 'column' ? 'Minimum' : undefined}
+			/>
+		  </View>
+		  
+		  <Text className={`
+			text-center
+			${orientation === 'row' ? 'mx-2' : 'my-2'}
+			text-neutral-500
+		  `}>
+			__
+		  </Text>
+		  
+		  <View className={`${orientation === 'row' ? 'flex-1' : 'w-full'}`}>
+			<PriceInput
+			  value={maxValue}
+			  onChangeText={onMaxChange}
+			  placeholder={placeholder}
+			  disabled={disabled}
+			  mainLabel={orientation === 'column' ? 'Maximum' : undefined}
+			/>
+		  </View>
+		</View>
+  
+		{error && (
+			<Text className={`form-error mt-1 ${errorClassName}`}>
+				{error}
+			</Text>
+		)}
+	  </View>
+	);
+  };
+
