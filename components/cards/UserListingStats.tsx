@@ -10,6 +10,8 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import AddListing from '../bottom-sheets/listings/AddListing';
 import { getSupabaseClient } from '@/lib/supabase';
 import AddBottomSheet from '../bottom-sheets/listings/Add';
+import UpgradeBottomSheet from '../bottom-sheets/listings/Upgrade';
+import SubscribeBottomSheet from '../bottom-sheets/listings/Subscribe';
 
 const InteropLinearGradient = cssInterop(LinearGradient, {
     className: {
@@ -63,11 +65,27 @@ const UserListingStats = () => {
         }
     }
 
+    // Temporary Subscription Status -> Replace with global state
+    type SubscriptionStatus = "subscribed" | "unsubscribed" | "limitReached";
+    const userSubscription = "subscribed" as SubscriptionStatus; // Example default value
 
+    
     // Add Listing Bottom Sheet 
     const addListingBottomSheetRef = useRef<BottomSheetModal>(null);
     const presentAddListingBottomSheet = useCallback(() => {
         addListingBottomSheetRef.current?.present();
+    }, []);
+
+    // Upgrade Bottom Sheet
+    const upgradeBottomSheetRef = useRef<BottomSheetModal>(null);
+    const presentUpgradeBottomSheet = useCallback(() => {
+        upgradeBottomSheetRef.current?.present();
+    }, []);
+
+    // Subscribe Bottom Sheet
+    const subscribeBottomSheetRef = useRef<BottomSheetModal>(null);
+    const presentSubscribeBottomSheet = useCallback(() => {
+        subscribeBottomSheetRef.current?.present();
     }, []);
 
     return (
@@ -84,7 +102,17 @@ const UserListingStats = () => {
                 </Text>
                 <CustomButton 
                     title='Add Listing' 
-                    onPress={presentAddListingBottomSheet}
+                    onPress={ () => {
+                        switch (userSubscription) {
+                            case 'subscribed':
+                                presentAddListingBottomSheet();
+                                break;
+                            case 'unsubscribed':
+                                presentSubscribeBottomSheet();
+                                break;
+                            case 'limitReached':
+                                presentUpgradeBottomSheet();
+                    }}}
                     bgVariant='dark'
                     IconLeft={() => <Plus className='stroke-neutral-50 mr-2' size={20} />}
                 />
@@ -119,6 +147,8 @@ const UserListingStats = () => {
             {/* <AddListing ref={addListingBottomSheetRef} /> */}
 
             <AddBottomSheet ref={addListingBottomSheetRef}  />
+            <UpgradeBottomSheet ref={upgradeBottomSheetRef} />
+            <SubscribeBottomSheet ref={subscribeBottomSheetRef} />
         </View>
     );
 };

@@ -7,6 +7,9 @@ import SelectField from '../../form/SelectField';
 import { UserFilterState } from '@/types/type';
 import { Listing, ListingFilters, DEFAULT_FILTERS, CATEGORIES, Condition, Status } from "@/constants/listing";
 import { bottomSheetCorners } from '@/constants/styles';
+import { Checkbox, DualPriceInput } from '@/components/form/FormComponents';
+import { Check } from 'lucide-react-native';
+import { TextInput } from 'react-native-gesture-handler';
 
 
 interface FilterBottomSheetProps {
@@ -14,6 +17,7 @@ interface FilterBottomSheetProps {
     header?: string;
     onFiltersSaved: (updatedFilters: ListingFilters) => void;
 }
+
 
 const FilterBottomSheet = forwardRef<BottomSheetModal, FilterBottomSheetProps>(
     ({ filters, header, onFiltersSaved }, ref) => {
@@ -50,6 +54,10 @@ const FilterBottomSheet = forwardRef<BottomSheetModal, FilterBottomSheetProps>(
             [saveFilters]
         );
 
+        // We created local states for minPrice and maxPrice as strings to keep autoformatting
+        const [minPrice, setMinPrice] = useState(String(filters.minPrice ?? ''));
+        const [maxPrice, setMaxPrice] = useState(String(filters.maxPrice ?? ''));
+
         return (
             <BottomSheetModal
                 ref={ref}
@@ -63,55 +71,54 @@ const FilterBottomSheet = forwardRef<BottomSheetModal, FilterBottomSheetProps>(
  
             >
                 <BottomSheetView className='px-8'>
-
                     {/* Category */}
-                    <SelectField
-                        label="Category"
-                        options={CATEGORIES}
-                        multiple={true}
-                        wrap={false}
-                        containerStyle="mb-8"
-                        selectedValues={tempFilters.categories}
-                        onChange={(values) =>
-                            setTempFilters({ ...tempFilters, categories: values.map(Number) })
-                        }
+                    <Checkbox
+                        mainLabel="Category"
+                        values={CATEGORIES.map(category => category.name)}
+                        selectedValues={CATEGORIES.filter(category => tempFilters.categories.includes(category.id)).map(category => category.name)}
+                        onValueChange={(selectedNames) => {
+                            const selectedIds = CATEGORIES.filter(category => selectedNames.includes(category.name)).map(category => category.id);
+                            setTempFilters({ ...tempFilters, categories: selectedIds });
+                        }}
+                        required={false}
+                        boxStyle={true}
+                        containerClassName="mb-8"
+                        orientation='scroll'
                     />
 
-                    {/* Price Range */}
-                    <View className="flex flex-row gap-4"> 
-                        <View className="flex-1">
-                            <PriceField 
-                                label="Min Price"
-                                isBottomSheetInput={true}
-                                placeholder="00.00"
-                                defaultValue={tempFilters.minPrice?.toString()}
-                                onChangeText={(text) => 
-                                    setTempFilters({ 
-                                        ...tempFilters, 
-                                        minPrice: text.trim() === "" ? undefined : Number(text) 
-                                    })
-                                }
-                            />
-                        </View>
-                        <View className="flex-1">
-                            <PriceField 
-                                label="Max Price"
-                                isBottomSheetInput={true}
-                                placeholder="00.00"
-                                defaultValue={tempFilters.maxPrice?.toString()}
-                                onChangeText={(text) => 
-                                    setTempFilters({ 
-                                        ...tempFilters, 
-                                        maxPrice: text.trim() === "" ? undefined : Number(text) 
-                                    })
-                                }
-                            />
-                        </View>
-                    </View>
-
+                    
+                    <DualPriceInput 
+                        mainLabel='Price Range'
+                        minValue={minPrice}
+                        maxValue={maxPrice}
+                        onMinChange={(value) => {
+                            setMinPrice(value);
+                            // Convert string to float and update numeric filters
+                            // If empty or non-numeric, set to undefined 
+                            const numericValue = value.trim() === '' ? undefined : parseFloat(value);
+                            setTempFilters(prev => ({
+                                ...prev,
+                                minPrice: isNaN(numericValue as number) ? undefined : numericValue
+                            }));
+                        }}
+                        onMaxChange={(value) => {
+                            setMaxPrice(value);
+                            // Convert string to float and update numeric filters
+                            // If empty or non-numeric, set to undefined
+                            const numericValue = value.trim() === '' ? undefined : parseFloat(value);
+                            setTempFilters(prev => ({
+                                ...prev,
+                                maxPrice: isNaN(numericValue as number) ? undefined : numericValue
+                            }));
+                        }}
+                        isBottomSheet={true}
+                        containerClassName='mb-8'
+                    />
+                    
+                    
                     {/* Featured Toggle */}
                     <View className="flex flex-row justify-between items-center mb-8">
-                        <Text className="label">Featured Only</Text>
+                        <Text className="form-label">Featured Only</Text>
                         <Switch 
                             value={tempFilters.isFeaturedOnly}
                             trackColor={{ false: '#F5F5F5', true: '#FF5A5F' }}
@@ -120,37 +127,33 @@ const FilterBottomSheet = forwardRef<BottomSheetModal, FilterBottomSheetProps>(
                             onValueChange={(value) => setTempFilters(prev => ({ ...prev, isFeaturedOnly: value }))}
                         />
                     </View>
-
+                    
                     {/* Condition */}
-                    <SelectField
-                        label="Condition"
-                        options={Object.values(Condition).map(value => ({ 
-                            id: value, 
-                            name: value.charAt(0).toUpperCase() + value.slice(1) // Capitalize first letter
-                        }))}
-                        multiple={true}
-                        wrap={false}
-                        containerStyle="mb-8"
-                        selectedValues={tempFilters.conditions}
-                        onChange={(values) =>
-                            setTempFilters({ ...tempFilters, conditions: values as Condition[] })
-                        }
+                    <Checkbox
+                        mainLabel="Condition"
+                        values={Object.values(Condition).map(value => value.charAt(0).toUpperCase() + value.slice(1))}
+                        selectedValues={tempFilters.conditions.map(value => value.charAt(0).toUpperCase() + value.slice(1))}
+                        onValueChange={(selectedNames) => {
+                            const selectedConditions = selectedNames.map(name => name.toLowerCase() as Condition);
+                            setTempFilters({ ...tempFilters, conditions: selectedConditions });
+                        }}
+                        required={false}
+                        boxStyle={true}
+                        containerClassName="mb-8"
                     />
 
                     {/* Status */}
-                    <SelectField
-                        label="Status"
-                        options={Object.values(Status).map(value => ({ 
-                            id: value, 
-                            name: value.charAt(0).toUpperCase() + value.slice(1) // Capitalize first letter
-                        }))}
-                        multiple={true}
-                        wrap={false}
-                        containerStyle="mb-8"
-                        selectedValues={tempFilters.status}
-                        onChange={(values) =>
-                            setTempFilters({ ...tempFilters, status: values as Status[] })
-                        }
+                    <Checkbox
+                        mainLabel="Status"
+                        values={Object.values(Status).map(value => value.charAt(0).toUpperCase() + value.slice(1))}
+                        selectedValues={tempFilters.status.map(value => value.charAt(0).toUpperCase() + value.slice(1))}
+                        onValueChange={(selectedNames) => {
+                            const selectedStatuses = selectedNames.map(name => name.toLowerCase() as Status);
+                            setTempFilters({ ...tempFilters, status: selectedStatuses });
+                        }}
+                        required={false}
+                        boxStyle={true}
+                        containerClassName="mb-8"
                     />
 
                     {/* Visualize the filters for testing - Delete if not using */}

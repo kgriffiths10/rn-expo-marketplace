@@ -47,6 +47,20 @@ export const SORT_OPTIONS: SortOption[] = [
     { column: 'listing_views', ascending: true, label: 'Least Views', id: 8 }
 ];
 
+export interface FeatureOption {
+    label: string;
+    price: number;
+    currency: string;
+    duration: number; // in hours
+    best?: boolean;
+}
+
+export const FEATURE_OPTIONS: FeatureOption[] = [
+    { label: "24 hrs", price: 1.99, currency: "USD", duration: 24 },
+    { label: "7 days", price: 4.99, currency: "USD", duration: 168, best: true }, // 7 * 24
+    { label: "14 days", price: 8.99, currency: "USD", duration: 336 } // 14 * 24
+];
+
 export interface ListingFilters {
     minPrice?: number;
     maxPrice?: number;
@@ -73,10 +87,12 @@ export interface Listing {
     created_at: string;
     description: string;
     is_featured: boolean;
+    featured_expires_at: string; //timestamptz
     listing_id: string;
     listing_views: number;
     price: number;
     status: Status;
     title: string;
     views: number;
+    user_id: string;
 }

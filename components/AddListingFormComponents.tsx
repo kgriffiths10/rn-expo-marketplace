@@ -8,15 +8,20 @@ import CustomButton from './CustomButton'
 import { RadioButton } from './form/FormComponents'
 import { CATEGORIES, Condition } from '@/constants/listing'
 
+
+
+
+
 export const Title = () => {
     return (
         <View className="mb-24">
-            <Text className="text-lg text-primary-400 font-regular mb-1">Give your listing a title</Text>
+            <Text className="form-label mb-1">Give your listing a title</Text>
             <BottomSheetTextInput 
                 placeholder="Bluetooth Wireless Headphones" 
                 className="text-4xl font-medium leading-[1.25]" 
                 multiline={true}   
                 submitBehavior="blurAndSubmit"
+                onChangeText={(text) => console.log(text)}
             />
         </View>
     );
@@ -150,7 +155,7 @@ export const ConditionCategory = () => {
                     }}
                     required
                     boxStyle={true}
-                    wrap={true}
+                    orientation='wrap'
                 />    
             </View>
             <View>
@@ -163,7 +168,7 @@ export const ConditionCategory = () => {
                     onValueChange={(value) => setSelectedCondition(value as Condition)}
                     required={false}
                     boxStyle={true}
-                    wrap={true}
+                    orientation='wrap'
                 />    
             </View>
             

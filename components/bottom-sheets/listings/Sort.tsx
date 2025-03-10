@@ -7,6 +7,7 @@ import { ChevronRight, ArrowUpDown, SortAsc, SortDesc, Eye, DollarSign, Text as 
 import { Listing, ListingFilters, DEFAULT_FILTERS, CATEGORIES, Condition, Status, SortOption, SORT_OPTIONS } from "@/constants/listing";
 import { bottomSheetCorners } from '@/constants/styles';
 import { Mutable } from 'react-native-reanimated/lib/typescript/commonTypes';
+import { RadioButton } from '@/components/form/FormComponents';
 
 
 interface SortBottomSheetProps {
@@ -30,26 +31,35 @@ const SortBottomSheet = forwardRef<BottomSheetModal, SortBottomSheetProps>(
         ),
         [header]
     );
+    
+    // Map SortOption objects to string labels for RadioButton component
+    const sortOptionLabels = useMemo(() => 
+        SORT_OPTIONS.map(option => option.label),
+    []);
+    
+    // Get the currently selected sort option label
+    const selectedSortLabel = useMemo(() => 
+        filters.sortBy ? filters.sortBy.label : SORT_OPTIONS[4].label,
+    [filters.sortBy]);
 
-    const iconSize = 18;
-    const iconStyle = 'stroke-neutral-400';
-    const getSortIcon = (column: string, direction: string) => {
-        if (column === 'price') return <DollarSign size={iconSize} className={iconStyle} />;
-        if (column === 'title') return <TextIcon size={iconSize} className={iconStyle} />;
-        if (column === 'created_at') return <ArrowUpDown size={iconSize} className={iconStyle} />;
-        if (column === 'listing_views') return <Eye size={iconSize} className={iconStyle} />;
-    }
-
-    const [selectedSort, setSelectedSort] = useState<SortOption>(filters.sortBy);
-
-    const handleSelectOption = (option: SortOption) => {
-        setSelectedSort(option);
-        onSortPress({
-            ...filters,
-            sortBy: option
-        });
-        bottomSheetRef.current?.dismiss();
-    };
+    const handleSortChange = useCallback((selectedLabel: string) => {
+        // Find the corresponding SortOption based on selected label
+        const selectedOption = SORT_OPTIONS.find(option => option.label === selectedLabel);
+        
+        if (selectedOption) {
+            // Create updated filters with new sort option
+            const updatedFilters = {
+                ...filters,
+                sortBy: selectedOption
+            };
+            
+            // Pass updated filters to parent component
+            onSortPress(updatedFilters);
+            
+            // Dismiss the bottom sheet
+            bottomSheetRef.current?.dismiss();
+        }
+    }, [filters, onSortPress, bottomSheetRef]);
 
     return (
         <BottomSheetModal
@@ -61,22 +71,15 @@ const SortBottomSheet = forwardRef<BottomSheetModal, SortBottomSheetProps>(
             backgroundStyle={bottomSheetCorners}
         >
             <BottomSheetView className='px-8 pb-8'>
-                {SORT_OPTIONS.map((option) => (
-                    <TouchableOpacity
-                        key={option.id}
-                        className='flex-row items-center justify-between mb-4'
-                        onPress={() => handleSelectOption(option)}>
-                        <View className='flex-row items-center gap-3'>
-                            {getSortIcon(option.column, option.ascending ? 'asc' : 'desc')}
-                            <Text className='label'>{option.label}</Text>
-                        </View>
-                        <View className='w-4 h-4 rounded-full border border-neutral-400 items-center justify-center'>
-                            {selectedSort.id === option.id && (
-                                <View className='w-4 h-4 rounded-full bg-primary-400'/>
-                            )}
-                        </View>
-                    </TouchableOpacity>
-                ))}
+                <RadioButton
+                    values={sortOptionLabels}
+                    selectedValue={selectedSortLabel}
+                    onValueChange={handleSortChange}
+                    required={false}
+                    boxStyle={false}
+                    containerClassName="mb-8"
+                    orientation='list'
+                />
             </BottomSheetView> 
         </BottomSheetModal>
     )

@@ -1,27 +1,242 @@
-import { View, Text, TouchableOpacity, Switch, Keyboard, Dimensions, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, Switch, Keyboard, Dimensions, TextInput, Pressable } from 'react-native'
 import React, { forwardRef, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BottomSheetBackdrop, BottomSheetFooter, BottomSheetHandleProps, BottomSheetModal, BottomSheetScrollView, BottomSheetTextInput, BottomSheetView, TouchableWithoutFeedback } from '@gorhom/bottom-sheet'
 import CustomButton from '../../CustomButton';
 import PriceField from '../../form/PriceField';
 import SelectField from '../../form/SelectField';
 import { UserFilterState } from '@/types/type';
-import { Listing, ListingFilters, DEFAULT_FILTERS, CATEGORIES, Condition, Status } from "@/constants/listing";
+import { Listing, ListingFilters, DEFAULT_FILTERS, CATEGORIES, Condition, Status, FEATURE_OPTIONS, FeatureOption } from "@/constants/listing";
 import { bottomSheetCorners } from '@/constants/styles';
-import { ArrowLeft, ArrowRight, Delete, Info } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Delete, Facebook, Info, Instagram, Twitter } from 'lucide-react-native';
 import PriceKeypad from '@/components/form/PriceKeypad';
 
 import InputField from '@/components/form/InputField';
-import { Description, Feature, Location, Price, Submit, Title, ConditionCategory } from '@/components/AddListingFormComponents';
+// import { Description, Feature, Location, Price, Submit, Title, ConditionCategory } from '@/components/AddListingFormComponents';
 import { router } from 'expo-router';
+import { AutoComplete, ComboBox, Input, PriceInput, RadioButton } from '@/components/form/FormComponents';
+import { Dispatch, SetStateAction } from 'react';
+import { clerk } from '@clerk/clerk-expo/dist/provider/singleton';
+import dayjs from "dayjs";
+import { countries } from '@/constants/location';
+
+
+interface FormProps {
+    form: Listing;
+    setForm: Dispatch<SetStateAction<Listing>>;
+}
+
+const Title = ({ form, setForm }: FormProps) => {
+    return (
+        <View className="mb-24">
+            <Text className="form-label mb-1">Give your listing a title</Text>
+            <BottomSheetTextInput 
+                placeholder="Bluetooth Wireless Headphones" 
+                className="text-4xl font-medium leading-[1.25]" 
+                multiline={true}   
+                submitBehavior="blurAndSubmit"
+                value={form.title}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, title: text }))}
+            />
+        </View>
+    );
+}
+
+const Description = ({ form, setForm }: FormProps) => {
+    return (
+        <View className="mb-24">
+            <Text className="form-label mb-1">Write a detailed description</Text>
+            <BottomSheetTextInput 
+                placeholder="Brand new, never used, wireless Bluetooth headphones with superior sound quality and noise-canceling..." 
+                className="text-2xl font-medium leading-[1.25] max-h-72" 
+                multiline={true}   
+                submitBehavior="newline"
+                value={form.description}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, description: text }))}
+
+            />
+        </View>
+    );
+}
+
+const Price = ({ form, setForm }: FormProps) => {
+    return (
+        <View className="mb-12">
+            <Text className="form-label text-center">Set an appropriate price</Text>
+            <PriceKeypad onPriceChange={(val) => setForm(prev => ({ ...prev, price: parseFloat(val) }))} />
+        </View>
+    );
+}
+
+const ConditionCategory = ({ form, setForm }: FormProps) => {
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(form.category_id || null);
+    const [selectedCondition, setSelectedCondition] = useState<Condition | null>(form.condition);
+
+    return (
+        <View className="mb-24">
+            <View className='mb-4'>
+                <RadioButton 
+                    mainLabel='Choose a category for your item'
+                    values={CATEGORIES.map(category => category.name)}
+                    selectedValue={
+                        selectedCategory !== null 
+                            ? CATEGORIES.find(category => category.id === selectedCategory)?.name || "" 
+                            : ""
+                    }
+                    onValueChange={(value) => {
+                        const category = CATEGORIES.find(c => c.name === value);
+                        setSelectedCategory(category ? category.id : null);
+                        setForm(prev => ({ ...prev, category_id: category ? category.id : 0 }));
+                    }}
+                    required={true}
+                    boxStyle={true}
+                    orientation='wrap'
+                    icon
+                />    
+            </View>
+            <View>
+                <RadioButton 
+                    mainLabel="Condition (optional)"
+                    values={Object.values(Condition).map(
+                        (val) => val.charAt(0).toUpperCase() + val.slice(1) // Capitalizes only the first letter
+                    )}
+                    selectedValue={selectedCondition ? selectedCondition.charAt(0).toUpperCase() + selectedCondition.slice(1) : ""}
+                    onValueChange={(value) => {
+                        const lowerCasedValue = value.toLowerCase() as Condition; // Convert back to lowercase for the database
+                        setSelectedCondition(lowerCasedValue);
+                        setForm(prev => ({ ...prev, condition: lowerCasedValue }));
+                    }}
+                    boxStyle={true}
+                    orientation='wrap'
+                    icon
+                /> 
+            </View>
+            
+        </View>
+    );
+}
+const Location = ({ form, setForm }: FormProps) => {
+    const [ city, setCity ] = useState('');
+    const [ province, setProvince ] = useState('');
+    const [ country, setCountry ] = useState('');
+    return (
+        <View className="mb-24">
+            <Text className="form-label mb-1">City</Text>
+            <BottomSheetTextInput 
+                placeholder="Westminister" 
+                className="text-4xl font-medium leading-[1.25]" 
+                multiline={false}   
+                submitBehavior="blurAndSubmit"
+                textContentType="addressCity"
+                value={city}
+                onChangeText={(text) => setCity(text)}
+            />
+        </View> 
+    )
+}
+
+// const Feature = ({ form, setForm }: FormProps) => {
+//     const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+//     const handleSelect = (option: FeatureOption) => {
+//         if (selectedFeature === option.label) {
+//             // Deselecting
+//             setSelectedFeature(null);
+//             setForm(prev => ({
+//                 ...prev,
+//                 is_featured: false,
+//                 // Don't set featured_expires_at here
+//             }));
+//         } else {
+//             // Selecting an option
+//             setSelectedFeature(option.label);
+//             setForm(prev => ({
+//                 ...prev,
+//                 is_featured: true,
+//                 // Don't set featured_expires_at here
+//             }));
+//         }
+//     };
+
+//     return (
+//         <View className="mb-12">
+//             <Text className="form-label">Get noticed and sell faster</Text>
+//             <Text className="form-sub-label">Boost your listing to the top for more visibility and quicker sales.</Text>
+
+//             <View className="flex gap-6 mt-4">
+//                 {FEATURE_OPTIONS.map((option) => {
+//                     const isSelected = selectedFeature === option.label;
+//                     return (
+//                         <TouchableOpacity
+//                             key={option.label}
+//                             onPress={() => handleSelect(option)}
+//                             className={`flex flex-row items-center justify-between border rounded-2xl p-4 ${
+//                                 isSelected ? "border-primary-400" : "border-neutral-300"
+//                             }`}
+//                         >
+//                             <View className="flex flex-row items-center gap-4">
+//                                 <View
+//                                     className={`w-6 h-6 rounded-full border items-center justify-center ${
+//                                         isSelected ? "border-primary-400" : "border-neutral-300"
+//                                     }`}
+//                                 >
+//                                     {isSelected && <View className="w-3 h-3 rounded-full bg-primary-400" />}
+//                                 </View>
+//                                 <Text className="text-lg font-PoppinsMedium">{option.label}</Text>
+//                                 {option.best && (
+//                                     <View className="bg-primary-400 self-start absolute -top-7 -right-10 py-1 px-3 rounded-full">
+//                                         <Text className="text-neutral-100 text-sm font-PoppinsRegular">BEST VALUE</Text>
+//                                     </View>
+//                                 )}
+//                             </View>
+//                             <Text className="text-lg font-PoppinsRegular text-neutral-400">${option.price} {option.currency}</Text>
+//                         </TouchableOpacity>
+//                     );
+//                 })}
+//             </View>
+//         </View>
+//     );
+// };
+
+const Submit = ({ form, setForm }: FormProps) => {
+    return (
+        <View className="mb-12 items-center">
+            <Text className="form-label text-center">Spread the word to friends</Text>
+            <View className='flex-row gap-4 mt-4'>
+                <TouchableOpacity onPress={() => {}} className="border border-neutral-300 rounded-lg p-3">
+                    <Facebook size={28} strokeWidth={1.75} className="text-neutral-800"/>    
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {}} className="border border-neutral-300 rounded-lg p-3">
+                    <Instagram size={28} strokeWidth={1.75} className="text-neutral-800"/>    
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {}} className="border border-neutral-300 rounded-lg p-3">
+                    <Twitter size={28} strokeWidth={1.75} className="text-neutral-800"/>    
+                </TouchableOpacity>    
+            </View>
+            <View className='flex gap-4 w-full mt-8'>
+                <CustomButton title="Post Listing" className="w-full" onPress={ () => {
+                    console.log('Posting Listing:', form);
+                }}
+                />
+ 
+                <View className='flex flex-row gap-4'>
+                    <CustomButton title="Save as Draft" className="flex-1" bgVariant='secondary' textVariant='dark'/>
+                    <CustomButton title="Cancel" className="flex-1" bgVariant='danger' textVariant='danger'/>        
+                </View>
+            </View>
+        </View>
+    );
+}
+
+
+
 
 interface AddBottomSheetProps {
     header?: string;
     }
 
-
 const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
-    ({ header }, ref) => {
-        const bottomSheetRef = ref as MutableRefObject<BottomSheetModal | null>;
+    ({ header }, ref ) => {
+
+        // const bottomSheetRef = ref as MutableRefObject<BottomSheetModal | null>;
         const renderBackdrop = useCallback((props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
         
         const renderHeader = useCallback(
@@ -32,18 +247,31 @@ const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
             ),
             [header]
         );
-        
-        const [subscriptionStatus, setSubscriptionStatus] = useState('subscribed');
-        const [showForm, setShowForm] = useState(false);
 
+        const [form, setForm] = useState<Listing>({
+            category_id: 0, // Default values
+            condition: Condition.NEW,
+            created_at: new Date().toISOString(),
+            description: "",
+            is_featured: false,
+            featured_expires_at: "", //timestamptz
+            listing_id: "",
+            listing_views: 0,
+            price: 0,
+            status: Status.ACTIVE,
+            title: "",
+            views: 0,
+            user_id: ""
+        });
+        
         const formSections = [
-            { key: 'title', component: <Title /> },
-            { key: 'description', component: <Description /> },
-            { key: 'price', component: <Price /> },
-            { key: 'condition', component: <ConditionCategory /> },
-            { key: 'location', component: <Location /> },
-            { key: 'feature', component: <Feature /> },
-            { key: 'submit', component: <Submit /> }
+            { key: 'title', component: <Title form={form} setForm={setForm}/> },
+            { key: 'description', component: <Description form={form} setForm={setForm} /> },
+            { key: 'price', component: <Price form={form} setForm={setForm} /> },
+            { key: 'condition', component: <ConditionCategory form={form} setForm={setForm} /> },
+            { key: 'location', component: <Location form={form} setForm={setForm} /> },
+            // { key: 'feature', component: <Feature form={form} setForm={setForm} /> },
+            { key: 'submit', component: <Submit form={form} setForm={setForm} /> }
         ]
 
         const formSteps = formSections.length;
@@ -61,6 +289,8 @@ const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
         }
 
         // console.log('Current Index:', currentIndex);
+        console.log('Form:', form);
+
 
         return (
             <BottomSheetModal
@@ -70,81 +300,35 @@ const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
                 enableDynamicSizing={true}
                 enableOverDrag={true}
                 backgroundStyle={bottomSheetCorners}
+                keyboardBlurBehavior="restore"
             >
                 <BottomSheetView className='px-8'> 
-                    
-                    {!showForm && subscriptionStatus === 'unsubscribed' && (
-                        <View className="items-center mt-4 mb-16">
-                            <Text className="text-lg text-center text-primary-400 font-regular mb-1">Unlock Selling</Text>
-                            <Text className="text-center text-2xl font-medium text-dark w-3/4 mb-4">Turn Items into Cash</Text>
-                            <Text className="text-center text-base font-regular text-light mb-8">List your items and connect with buyers instantly. Subscribe to get started.</Text>
-                            <CustomButton
-                                title="Subscribe Now"
-                                className="w-full"
-                                onPress={() => {
-                                    router.push('/settings');
-                                    bottomSheetRef.current?.dismiss();
-                                }}
-                            />    
+                    {/* Form Sections */}
+                    <View className='mt-4'>
+                        {formSections[currentIndex].component}
+                    </View>
+
+                    {/*Form Navigation Header */}
+                    <View className="flex-row justify-between items-center mb-10">
+                        <TouchableOpacity onPress={handleBack} className="border border-neutral-300 rounded-full p-2">
+                            <ArrowLeft size={24} strokeWidth={1.75} className="text-neutral-800"/>    
+                        </TouchableOpacity>
+
+                        <View className="flex-row gap-2">
+                            {formSections.map((_, index) => (
+                                <View
+                                    key={index}
+                                    className={`h-2 rounded-full ${index === currentIndex ? "w-8 bg-primary-400" : "w-2"} ${
+                                        index < currentIndex ? "bg-primary-400" : "bg-neutral-300"
+                                    }`}
+                                />
+                            ))}
                         </View>
-                    )}
 
-                    {!showForm && subscriptionStatus === 'limitReached' && (
-                        <View className="items-center mt-4 mb-16">
-                            <Text className="text-lg text-center text-primary-400 font-regular mb-1">Limit Reached</Text>
-                            <Text className="text-center text-2xl font-medium text-dark w-3/4 mb-4">Save as a Draft</Text>
-                            <Text className="text-center text-base font-regular text-light mb-8">
-                                You can only have 4 active listings at a time. Save your current listing as a draft or upgrade to Premium for unlimited listings.
-                            </Text>
-                            <CustomButton title="Continue" className="w-full" onPress={() => setShowForm(true)} />
-                            <TouchableOpacity>
-                                <Text className="text-primary-400 text-center text-base font-medium mt-3">Upgrade to Premium</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
-                    {!showForm && subscriptionStatus === 'subscribed' && (
-                        <View className="items-center mt-4 mb-16">
-                            <Text className="text-lg text-center text-primary-400 font-regular mb-1">Get Started</Text>
-                            <Text className="text-center text-2xl font-medium text-dark w-3/4 mb-4">Create a Listing</Text>
-                            <Text className="text-center text-base font-regular text-light mb-8">
-                                List your items now and connect with buyers instantly.
-                            </Text>
-                            <CustomButton title="Create a Listing" className="w-full" onPress={() => setShowForm(true)} />
-                        </View>
-                    )}
-
-                    {showForm && (
-                        <>
-                            {/* Form Sections */}
-                            <View className='mt-4'>
-                                {formSections[currentIndex].component}
-                            </View>
-
-                            {/*Form Navigation Header */}
-                            <View className="flex-row justify-between items-center mb-10">
-                                <TouchableOpacity onPress={handleBack} className="border border-neutral-300 rounded-full p-2">
-                                    <ArrowLeft size={24} strokeWidth={1.75} className="text-neutral-800"/>    
-                                </TouchableOpacity>
-
-                                <View className="flex-row gap-2">
-                                    {formSections.map((_, index) => (
-                                        <View
-                                            key={index}
-                                            className={`h-2 rounded-full ${index === currentIndex ? "w-8 bg-primary-400" : "w-2"} ${
-                                                index < currentIndex ? "bg-primary-400" : "bg-neutral-300"
-                                            }`}
-                                        />
-                                    ))}
-                                </View>
-
-                                <TouchableOpacity onPress={handleNext} className="border border-neutral-300 rounded-full p-2">
-                                    <ArrowRight size={24} strokeWidth={1.75} className="text-neutral-800" />    
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                    )}
-
+                        <TouchableOpacity onPress={handleNext} className="border border-neutral-300 rounded-full p-2">
+                            <ArrowRight size={24} strokeWidth={1.75} className="text-neutral-800" />    
+                        </TouchableOpacity>
+                    </View>
                 </BottomSheetView>
             </BottomSheetModal>
         );
@@ -153,3 +337,4 @@ const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
 );
 
 export default AddBottomSheet;
+

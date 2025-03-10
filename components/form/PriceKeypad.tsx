@@ -3,13 +3,18 @@ import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native';
 import { Delete } from 'lucide-react-native';
 
-const PriceKeypad = () => {
+interface PriceKeypadProps {
+    onPriceChange?: (price: string) => void;
+}
+
+const PriceKeypad = ({ onPriceChange }: PriceKeypadProps) => {
     const [whole, setWhole] = useState('0');
     const [decimal, setDecimal] = useState('00'); // Max two decimal places
     const [price, setPrice] = useState(whole + '.' + decimal);
 
-    const updatePrice = useEffect(() => {
+    useEffect(() => {
         setPrice(whole + '.' + decimal);
+        onPriceChange?.(whole + '.' + decimal);
     }, [whole, decimal]);
 
     const [isDecimal, setIsDecimal] = useState(false); 
