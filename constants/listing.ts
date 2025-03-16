@@ -82,12 +82,13 @@ export const DEFAULT_FILTERS: ListingFilters = {
 };
 
 export interface Listing {
-    category_id: number;    
+    category_id: number; 
+    category_name: string; // cateogry_name comes from categories table using foreign key cateogry_id in listings table  
     condition: Condition;
     created_at: string;
     description: string;
     is_featured: boolean;
-    featured_expires_at: string; //timestamptz
+    featured_expires_at?: string; //timestamptz
     listing_id: string;
     listing_views: number;
     price: number;
@@ -95,4 +96,5 @@ export interface Listing {
     title: string;
     views: number;
     user_id: string;
+    location: string;
 }

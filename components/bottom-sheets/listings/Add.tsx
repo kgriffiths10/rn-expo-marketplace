@@ -101,9 +101,11 @@ const ConditionCategory = ({ form, setForm }: FormProps) => {
                     )}
                     selectedValue={selectedCondition ? selectedCondition.charAt(0).toUpperCase() + selectedCondition.slice(1) : ""}
                     onValueChange={(value) => {
-                        const lowerCasedValue = value.toLowerCase() as Condition; // Convert back to lowercase for the database
-                        setSelectedCondition(lowerCasedValue);
-                        setForm(prev => ({ ...prev, condition: lowerCasedValue }));
+                        if (typeof value === 'string') {
+                            const lowerCasedValue = value.toLowerCase() as Condition; // Convert back to lowercase for the database
+                            setSelectedCondition(lowerCasedValue);
+                            setForm(prev => ({ ...prev, condition: lowerCasedValue }));
+                        }
                     }}
                     boxStyle={true}
                     orientation='wrap'
@@ -134,67 +136,6 @@ const Location = ({ form, setForm }: FormProps) => {
     )
 }
 
-// const Feature = ({ form, setForm }: FormProps) => {
-//     const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
-//     const handleSelect = (option: FeatureOption) => {
-//         if (selectedFeature === option.label) {
-//             // Deselecting
-//             setSelectedFeature(null);
-//             setForm(prev => ({
-//                 ...prev,
-//                 is_featured: false,
-//                 // Don't set featured_expires_at here
-//             }));
-//         } else {
-//             // Selecting an option
-//             setSelectedFeature(option.label);
-//             setForm(prev => ({
-//                 ...prev,
-//                 is_featured: true,
-//                 // Don't set featured_expires_at here
-//             }));
-//         }
-//     };
-
-//     return (
-//         <View className="mb-12">
-//             <Text className="form-label">Get noticed and sell faster</Text>
-//             <Text className="form-sub-label">Boost your listing to the top for more visibility and quicker sales.</Text>
-
-//             <View className="flex gap-6 mt-4">
-//                 {FEATURE_OPTIONS.map((option) => {
-//                     const isSelected = selectedFeature === option.label;
-//                     return (
-//                         <TouchableOpacity
-//                             key={option.label}
-//                             onPress={() => handleSelect(option)}
-//                             className={`flex flex-row items-center justify-between border rounded-2xl p-4 ${
-//                                 isSelected ? "border-primary-400" : "border-neutral-300"
-//                             }`}
-//                         >
-//                             <View className="flex flex-row items-center gap-4">
-//                                 <View
-//                                     className={`w-6 h-6 rounded-full border items-center justify-center ${
-//                                         isSelected ? "border-primary-400" : "border-neutral-300"
-//                                     }`}
-//                                 >
-//                                     {isSelected && <View className="w-3 h-3 rounded-full bg-primary-400" />}
-//                                 </View>
-//                                 <Text className="text-lg font-PoppinsMedium">{option.label}</Text>
-//                                 {option.best && (
-//                                     <View className="bg-primary-400 self-start absolute -top-7 -right-10 py-1 px-3 rounded-full">
-//                                         <Text className="text-neutral-100 text-sm font-PoppinsRegular">BEST VALUE</Text>
-//                                     </View>
-//                                 )}
-//                             </View>
-//                             <Text className="text-lg font-PoppinsRegular text-neutral-400">${option.price} {option.currency}</Text>
-//                         </TouchableOpacity>
-//                     );
-//                 })}
-//             </View>
-//         </View>
-//     );
-// };
 
 const Submit = ({ form, setForm }: FormProps) => {
     return (
@@ -251,6 +192,7 @@ const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
         const [form, setForm] = useState<Listing>({
             category_id: 0, // Default values
             condition: Condition.NEW,
+            category_name: CATEGORIES[0].name,
             created_at: new Date().toISOString(),
             description: "",
             is_featured: false,
@@ -261,7 +203,8 @@ const AddBottomSheet = forwardRef<BottomSheetModal, AddBottomSheetProps>(
             status: Status.ACTIVE,
             title: "",
             views: 0,
-            user_id: ""
+            user_id: "",
+            location: "",
         });
         
         const formSections = [

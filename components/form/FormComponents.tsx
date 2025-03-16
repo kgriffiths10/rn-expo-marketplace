@@ -47,14 +47,13 @@ tailwindcss config
 
 */
 
-// Make sure they all have errors if required
 
 /* -------------------- CHECKBOX -------------------- */
 
 interface CheckboxProps {
-    values: string[];
-    selectedValues: string[];
-    onValueChange: (values: string[]) => void;
+    values: (string | number)[];
+    selectedValues: (string | number)[];
+    onValueChange: (values: (string | number)[]) => void;
     mainLabel?: string;
     subLabel?: string;
     required?: boolean;
@@ -94,7 +93,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     orientation = "wrap",
     alignment = "left",
 }) => {
-    const handleToggle = (value: string) => {
+    const handleToggle = (value: string | number ) => {
         const newSelectedValues = selectedValues.includes(value)
             ? selectedValues.filter((v) => v !== value)
             : [...selectedValues, value];
@@ -130,7 +129,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
                                 />
                             )}
                             <Text
-                                className={`form-value-label ${isSelected ? "text-white" : "text-neutral-800"} ${checkboxLabelClassName} ${
+                                className={`form-value-label capitalize ${isSelected ? "text-white" : "text-neutral-800"} ${checkboxLabelClassName} ${
                                     isSelected
                                         ? activeCheckboxLabelClassName
                                         : ""
@@ -156,7 +155,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
                         {isSelected && <Check size={16} color="white" />}
                     </Pressable>
                     <Text
-                        className={`text-sm font-regular text-neutral-800 ${checkboxLabelClassName} ${
+                        className={`form-value-label capitalize ${checkboxLabelClassName} ${
                             isSelected ? activeCheckboxLabelClassName : ""
                         }`}
                     >
@@ -236,9 +235,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 /* -------------------- RADIO BUTTON -------------------- */
 
 interface RadioButtonProps {
-    values: string[];
-    selectedValue: string;
-    onValueChange: (value: string) => void;
+    values: (string | number)[];
+    selectedValue: string | number | null;
+    onValueChange: (value: string | number) => void;
     mainLabel?: string;
     subLabel?: string;
     required?: boolean;
@@ -278,7 +277,7 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
     orientation = "wrap",
     alignment = "left",
 }) => {
-    const handleSelect = (value: string) => {
+    const handleSelect = (value: string | number) => {
         if (!required && value === selectedValue) {
             onValueChange("");
         } else {
@@ -310,7 +309,7 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
                                 />
                             )}
                             <Text
-                                className={`form-value-label ${isSelected ? "text-white" : "text-neutral-800"} ${radioLabelClassName} ${
+                                className={`form-value-label capitalize ${isSelected ? "text-white" : "text-neutral-800"} ${radioLabelClassName} ${
                                     isSelected ? activeRadioLabelClassName : ""
                                 }`}
                             >
@@ -336,7 +335,7 @@ export const RadioButton: React.FC<RadioButtonProps> = ({
                         )}
                     </Pressable>
                     <Text
-                        className={`form-value-label ${radioLabelClassName} ${
+                        className={`form-value-label capitalize ${radioLabelClassName} ${
                             isSelected ? activeRadioLabelClassName : ""
                         }`}
                     >

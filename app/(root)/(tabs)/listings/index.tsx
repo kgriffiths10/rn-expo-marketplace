@@ -106,7 +106,7 @@ const Listings = () => {
             const supabase = await getSupabaseClient(token);
 
             let query = supabase
-                .from('user_listings')
+                .from('listings')
                 .select('*')
                 .ilike('title', `%${searchQuery}%`);
 
@@ -165,7 +165,7 @@ const Listings = () => {
     }, [filters]);
 
     return (
-        <View className="bg-white flex-1 px-4">
+        <View className="flex-1 px-4 bg-white">
             {/* <Text>Min Price: {filters.minPrice}</Text>
             <Text>Max Price: {filters.maxPrice}</Text>
             <Text>Categories: {filters.categories}</Text>

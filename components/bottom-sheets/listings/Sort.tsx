@@ -42,7 +42,8 @@ const SortBottomSheet = forwardRef<BottomSheetModal, SortBottomSheetProps>(
         filters.sortBy ? filters.sortBy.label : SORT_OPTIONS[4].label,
     [filters.sortBy]);
 
-    const handleSortChange = useCallback((selectedLabel: string) => {
+    const handleSortChange = useCallback((selectedLabel: string | number) => {
+        if (typeof selectedLabel !== 'string') return;
         // Find the corresponding SortOption based on selected label
         const selectedOption = SORT_OPTIONS.find(option => option.label === selectedLabel);
         

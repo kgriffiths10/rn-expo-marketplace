@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 .page-heading {
-    @apply text-xl font-PoppinsMedium text-neutral-900 mb-4;
+    @apply text-xl font-PoppinsMedium text-neutral-800;
 }
 .bottom-sheet-heading {
-    @apply text-lg font-PoppinsMedium text-neutral-900;
+    @apply text-lg font-PoppinsMedium text-neutral-800;
 }
 
 
@@ -116,13 +116,13 @@ body {
 
 /* Form Styling */
 .form-label {
-    @apply text-lg text-primary font-regular;
+    @apply text-base text-primary font-regular;
 }
 .form-sub-label {
     @apply text-sm font-regular text-light;
 }
 .form-value-label {
-    @apply text-base font-regular;
+    @apply text-sm font-regular;
 }
 .form-error {
     @apply text-sm font-regular text-red-500;

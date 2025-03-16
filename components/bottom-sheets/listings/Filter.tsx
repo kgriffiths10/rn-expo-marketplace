@@ -131,10 +131,10 @@ const FilterBottomSheet = forwardRef<BottomSheetModal, FilterBottomSheetProps>(
                     {/* Condition */}
                     <Checkbox
                         mainLabel="Condition"
-                        values={Object.values(Condition).map(value => value.charAt(0).toUpperCase() + value.slice(1))}
-                        selectedValues={tempFilters.conditions.map(value => value.charAt(0).toUpperCase() + value.slice(1))}
+                        values={Object.values(Condition)}
+                        selectedValues={tempFilters.conditions}
                         onValueChange={(selectedNames) => {
-                            const selectedConditions = selectedNames.map(name => name.toLowerCase() as Condition);
+                            const selectedConditions = selectedNames.map(name => name as Condition);
                             setTempFilters({ ...tempFilters, conditions: selectedConditions });
                         }}
                         required={false}
@@ -145,10 +145,10 @@ const FilterBottomSheet = forwardRef<BottomSheetModal, FilterBottomSheetProps>(
                     {/* Status */}
                     <Checkbox
                         mainLabel="Status"
-                        values={Object.values(Status).map(value => value.charAt(0).toUpperCase() + value.slice(1))}
-                        selectedValues={tempFilters.status.map(value => value.charAt(0).toUpperCase() + value.slice(1))}
+                        values={Object.values(Status)}
+                        selectedValues={tempFilters.status}
                         onValueChange={(selectedNames) => {
-                            const selectedStatuses = selectedNames.map(name => name.toLowerCase() as Status);
+                            const selectedStatuses = selectedNames.map(name => name as Status);
                             setTempFilters({ ...tempFilters, status: selectedStatuses });
                         }}
                         required={false}
